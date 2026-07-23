@@ -1,4 +1,4 @@
-import { Activity, ShieldPlus, Users } from 'lucide-react';
+import { Activity, ShieldPlus } from 'lucide-react';
 
 export function About() {
   return (

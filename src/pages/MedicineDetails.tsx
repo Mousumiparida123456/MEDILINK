@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { QRCodeSVG } from 'qrcode.react';
-import { CheckCircle2, AlertCircle, Clock, MapPin, Pill, Star, Info, Upload, ThumbsUp, MessageSquare } from 'lucide-react';
+import { CheckCircle2, AlertCircle, MapPin, Pill, Star, Info, Upload, ThumbsUp } from 'lucide-react';
 import clsx from 'clsx';
 import { format } from 'date-fns';
 import toast from 'react-hot-toast';

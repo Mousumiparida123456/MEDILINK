@@ -2,6 +2,15 @@ import { Search, Mic, SlidersHorizontal, MapPin, Pill, Star, AlertCircle, CheckC
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import clsx from 'clsx';
+import { useState, useEffect, useRef } from 'react';
+
+// SpeechRecognition global type
+declare global {
+  interface Window {
+    SpeechRecognition: any;
+    webkitSpeechRecognition: any;
+  }
+}
 
 // Types
 interface Medicine {
@@ -171,8 +180,8 @@ export function SearchMedicine() {
                 className="absolute w-full mt-2 bg-white rounded-xl shadow-xl border border-slate-100 overflow-hidden z-50 text-left"
               >
                 <ul>
-                  {suggestions.map((suggestion, idx) => (
-                    <li key={idx}>
+                  {suggestions.map((suggestion: string, idx: number) => (
+                    <div key={idx}>
                       <button
                         type="button"
                         className="w-full text-left px-5 py-3 text-slate-700 hover:bg-emerald-50 hover:text-primary transition-colors flex items-center gap-3 border-b border-slate-50 last:border-0"
@@ -185,7 +194,7 @@ export function SearchMedicine() {
                         <Search className="h-4 w-4 opacity-50" />
                         {suggestion}
                       </button>
-                    </li>
+                    </div>
                   ))}
                 </ul>
               </motion.div>
@@ -268,14 +277,13 @@ export function SearchMedicine() {
             </div>
           ) : medicines.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {medicines.map((med) => (
-                <div key={med._id}>
+              {medicines.map((med: Medicine) => (
+                <div key={med._id} className="bg-white rounded-3xl shadow-soft border border-slate-100 overflow-hidden hover:shadow-xl transition-all duration-300 flex flex-col">
                   <Link to={`/medicine/${med._id}`}>
                     <motion.div 
                       initial={{ opacity: 0, scale: 0.95 }}
                       animate={{ opacity: 1, scale: 1 }}
                       whileHover={{ y: -4 }}
-                      className="bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-soft transition-all overflow-hidden flex flex-col h-full cursor-pointer"
                     >
                       <div className="p-5 border-b border-slate-50 flex-grow">
                         <div className="flex justify-between items-start mb-2">
@@ -285,8 +293,8 @@ export function SearchMedicine() {
                         <p className="text-sm text-slate-500 mb-4 font-medium">{med.genericName}</p>
                         
                         <div className="flex flex-wrap gap-2 mb-4">
-                          {med.diseaseTags.slice(0, 3).map((tag, i) => (
-                            <span key={i} className="text-xs px-2 py-1 bg-slate-100 text-slate-600 rounded-md">
+                          {med.diseaseTags?.map((tag: string, i: number) => (
+                            <span key={i} className="px-3 py-1 bg-slate-50 text-slate-600 rounded-lg text-xs font-medium border border-slate-200">
                               {tag}
                             </span>
                           ))}

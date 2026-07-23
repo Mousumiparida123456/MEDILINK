@@ -1,5 +1,4 @@
 import { Search, Phone, MapPin, Clock, ShieldCheck, Star, ChevronDown, ChevronUp, Pill, HeartPulse, Activity } from 'lucide-react';
-import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
 import clsx from 'clsx';

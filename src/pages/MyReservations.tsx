@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { QRCodeSVG } from 'qrcode.react';
-import { Clock, MapPin, Pill, CheckCircle2, XCircle } from 'lucide-react';
+import { Clock, MapPin, Pill } from 'lucide-react';
 import { format } from 'date-fns';
 import clsx from 'clsx';
 

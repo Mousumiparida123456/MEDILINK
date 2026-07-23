@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { Users, Store, Activity, Trash2, CheckCircle, Ban, TrendingUp, Map as MapIcon, ShieldCheck } from 'lucide-react';
+import { Users, Store, Activity, Trash2, Ban, TrendingUp, Map as MapIcon, ShieldCheck } from 'lucide-react';
 import { format } from 'date-fns';
 import clsx from 'clsx';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
