@@ -1,3 +1,100 @@
+"Imagine it's 11:30 PM. A patient's child suddenly develops a high fever. The doctor prescribes an emergency medicine, but after visiting three pharmacies, none have it. Every minute matters. Our platform solves this by showing which nearby pharmacy has the medicine in stock before the patient leaves home."😂
+
+"Google Maps tells you where a place is.
+
+Swiggy tells you which restaurant has food.
+
+MediFind tells you exactly where your medicine is available."
+
+Search Medicine
+
+Problem:
+"I don't know which pharmacy has it."
+
+Solution:
+Search once.
+
+Nearby Pharmacy
+
+Problem:
+"I don't know which shop is nearest."
+
+Solution:
+GPS shows the closest pharmacy.
+
+Live Stock
+
+Problem:
+"I reach the shop only to find it's out of stock."
+
+Solution:
+Real-time inventory.
+
+Reservation
+
+Problem:
+"Someone may buy the last strip before I reach."
+
+Solution:
+Reserve instantly.
+
+Generic Alternative
+
+Problem:
+"My medicine isn't available."
+
+Solution:
+Show equivalent generic medicines with doctor-approved information.
+
+Price Comparison
+
+Problem:
+"One pharmacy charges much more."
+
+Solution:
+Compare prices before purchasing.
+
+#FLOW
+
+Register
+
+↓
+
+Search Medicine
+
+↓
+
+Current Location
+
+↓
+
+Nearby Pharmacies
+
+↓
+
+Availability
+
+↓
+
+Compare Price
+
+↓
+
+Reserve Medicine
+
+↓
+
+Receive QR Code
+
+↓
+
+Visit Pharmacy
+
+↓
+
+Collect Medicine
+
+
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
