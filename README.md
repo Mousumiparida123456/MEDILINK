@@ -1,3 +1,5 @@
+# React + TypeScript + Vite
+
 "Imagine it's 11:30 PM. A patient's child suddenly develops a high fever. The doctor prescribes an emergency medicine, but after visiting three pharmacies, none have it. Every minute matters. Our platform solves this by showing which nearby pharmacy has the medicine in stock before the patient leaves home."
 
 "Google Maps tells you where a place is.
@@ -94,8 +96,7 @@ Visit Pharmacy
 
 Collect Medicine
 
-
-# React + TypeScript + Vite
+# MediLink (MediFind)
 
 This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
 

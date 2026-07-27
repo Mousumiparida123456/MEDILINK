@@ -290,10 +290,19 @@ export function SearchMedicine() {
               <p className="text-sm text-slate-500">{userLocation ? "Location acquired successfully" : "Not yet provided"}</p>
             </div>
           </div>
-          {!userLocation && (
-            <button onClick={requestLocation} className="text-primary font-bold text-sm hover:underline">
-              Share Location
-            </button>
+          {!userLocation ? (
+            <div className="flex gap-3">
+              <button onClick={() => setUserLocation([20.2961, 85.8245])} className="text-emerald-600 font-bold text-sm hover:underline border border-emerald-200 px-3 py-1.5 rounded-lg bg-emerald-50">
+                Use Demo Location (Patia)
+              </button>
+              <button onClick={requestLocation} className="text-primary font-bold text-sm hover:underline border border-primary/20 px-3 py-1.5 rounded-lg bg-primary/5">
+                Share Real Location
+              </button>
+            </div>
+          ) : (
+             <button onClick={() => setUserLocation(null)} className="text-slate-500 font-bold text-sm hover:underline">
+               Clear Location
+             </button>
           )}
         </div>
 
@@ -305,7 +314,7 @@ export function SearchMedicine() {
           <input 
             type="range" 
             min="1" 
-            max="50"
+            max="500"
             value={maxDistance}
             onChange={(e) => setMaxDistance(Number(e.target.value))}
             className={clsx("w-full h-3 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-primary", !userLocation && "opacity-50")}
@@ -447,7 +456,7 @@ export function SearchMedicine() {
               )}
 
               {/* Pharmacy Markers */}
-              {medicines.map((med, idx) => {
+              {medicines.map((med) => {
                 if (med.location && med.location.coordinates && med.location.coordinates.length === 2) {
                   // MongoDB stores coordinates as [longitude, latitude], Leaflet expects [latitude, longitude]
                   const position: [number, number] = [med.location.coordinates[1], med.location.coordinates[0]];
@@ -455,21 +464,29 @@ export function SearchMedicine() {
                   return (
                     <Marker key={med._id} position={position}>
                       <Popup>
-                        <div className="p-2 min-w-[160px]">
-                          <strong className="block text-base mb-2 border-b border-slate-100 pb-2">{idx + 1}. {med.pharmacyName}</strong>
+                        <div className="p-2 min-w-[180px]">
+                          <strong className="block text-base mb-2 border-b border-slate-100 pb-2">🏥 {med.pharmacyName}</strong>
                           <div className="text-sm text-slate-600 mb-3 space-y-1">
-                            {med.distance !== undefined && <p className="flex justify-between"><span>Distance:</span> <span className="font-bold">{med.distance.toFixed(1)} km</span></p>}
-                            <p className="flex justify-between">
-                              <span>Stock:</span> 
-                              <span className={med.stockAvailability?.inStock ? "text-emerald-600 font-bold" : "text-rose-600 font-bold"}>
-                                {med.stockAvailability?.inStock ? 'In Stock' : 'Out'}
-                              </span>
+                            <p className={med.stockAvailability?.inStock ? "text-emerald-600 font-bold flex items-center gap-1" : "text-rose-600 font-bold flex items-center gap-1"}>
+                              {med.stockAvailability?.inStock ? <><CheckCircle2 className="h-3 w-3" /> In Stock</> : <><AlertCircle className="h-3 w-3" /> Out of Stock</>}
                             </p>
-                            <p className="flex justify-between"><span>Price:</span> <span className="font-bold text-primary">${med.price?.toFixed(2)}</span></p>
+                            <p className="font-bold text-slate-900">₹{med.price?.toFixed(2)}</p>
+                            {med.distance !== undefined && <p>{med.distance.toFixed(1)} km</p>}
+                            <p className="text-emerald-600 font-medium text-xs">Open Now</p>
                           </div>
-                          <Link to={`/medicine/${med._id}`}>
-                            <button disabled={!med.stockAvailability?.inStock} className="w-full bg-primary hover:bg-primary-dark text-white text-xs py-2 rounded-lg font-bold disabled:bg-slate-300">Reserve</button>
-                          </Link>
+                          <div className="flex gap-2">
+                            <Link to={`/medicine/${med._id}`} className="flex-1">
+                              <button disabled={!med.stockAvailability?.inStock} className="w-full bg-primary hover:bg-primary-dark text-white text-xs py-2 rounded-lg font-bold disabled:bg-slate-300">Reserve</button>
+                            </Link>
+                            <a 
+                              href={`https://www.google.com/maps/dir/?api=1&destination=${position[0]},${position[1]}`} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="flex-1"
+                            >
+                              <button className="w-full bg-blue-500 hover:bg-blue-600 text-white text-xs py-2 rounded-lg font-bold">Navigate</button>
+                            </a>
+                          </div>
                         </div>
                       </Popup>
                     </Marker>

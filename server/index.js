@@ -12,6 +12,7 @@ const adminRoutes = require('./src/routes/admin');
 const reviewRoutes = require('./src/routes/reviews');
 const notificationRoutes = require('./src/routes/notifications');
 const optimizerRoutes = require('./src/routes/optimizer');
+const inventoryRoutes = require('./src/routes/inventory');
 
 const app = express();
 
@@ -30,6 +31,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/optimizer', optimizerRoutes);
+app.use('/api/inventory', inventoryRoutes);
 
 // Database connection
 mongoose.connect(process.env.MONGODB_URI)
