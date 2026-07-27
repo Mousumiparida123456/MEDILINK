@@ -11,6 +11,7 @@ const dashboardRoutes = require('./src/routes/dashboard');
 const adminRoutes = require('./src/routes/admin');
 const reviewRoutes = require('./src/routes/reviews');
 const notificationRoutes = require('./src/routes/notifications');
+const optimizerRoutes = require('./src/routes/optimizer');
 
 const app = express();
 
@@ -28,6 +29,7 @@ app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/optimizer', optimizerRoutes);
 
 // Database connection
 mongoose.connect(process.env.MONGODB_URI)

@@ -60,13 +60,9 @@ export function NearbyPharmacies() {
       const res = await fetch(url);
       const data = await res.json();
       
-      // Assign random coordinates near user for mock display
       const mapped = data.map((p: any) => ({
         ...p,
-        coords: [
-          lat + (Math.random() - 0.5) * 0.05,
-          lng + (Math.random() - 0.5) * 0.05
-        ]
+        coords: p.coords || [lat, lng] // fallback if missing
       }));
       setPharmacies(mapped);
     } catch (err) {

@@ -13,6 +13,7 @@ export function MedicineDetails() {
   const navigate = useNavigate();
   
   const [medicine, setMedicine] = useState<any>(null);
+  const [alternatives, setAlternatives] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   
   // Reservation state
@@ -30,19 +31,27 @@ export function MedicineDetails() {
   const [reviewComment, setReviewComment] = useState('');
 
   useEffect(() => {
-    // In a real app, fetch medicine by ID. 
-    // Since we mocked data, we'll fetch search and grab the first one (or match by ID if we implement a specific route)
-    // For demo, we just fetch search with no query and pick first.
     const fetchMed = async () => {
       try {
-        const res = await fetch(`http://localhost:5000/api/medicines/search`);
+        const res = await fetch(`http://localhost:5000/api/medicines/${id}`);
+        if (!res.ok) throw new Error('Not found');
         const data = await res.json();
-        const found = data.find((m: any) => m._id === id) || data[0];
-        setMedicine(found);
+        setMedicine(data);
       } catch (err) {
         console.error(err);
       } finally {
         setLoading(false);
+      }
+    };
+
+    const fetchAlternatives = async () => {
+      try {
+        const res = await fetch(`http://localhost:5000/api/medicines/generic/${id}`);
+        if (res.ok) {
+          setAlternatives(await res.json());
+        }
+      } catch (err) {
+        console.error(err);
       }
     };
     
@@ -57,6 +66,7 @@ export function MedicineDetails() {
     
     if (id) {
       fetchMed();
+      fetchAlternatives();
       fetchReviews();
     }
   }, [id]);
@@ -262,10 +272,14 @@ export function MedicineDetails() {
           <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm mt-6">
             <h4 className="font-bold text-slate-900 mb-4">Alternatives</h4>
             <div className="space-y-4">
-              <div className="p-3 bg-slate-50 rounded-xl cursor-pointer hover:bg-slate-100 transition-colors">
-                <p className="font-bold text-sm text-slate-900">Generic Substitute A</p>
-                <p className="text-xs text-primary font-medium mt-1">Available • $10.50</p>
-              </div>
+              {alternatives.length > 0 ? alternatives.map(alt => (
+                <div key={alt._id} onClick={() => navigate(`/medicine/${alt._id}`)} className="p-3 bg-slate-50 rounded-xl cursor-pointer hover:bg-slate-100 transition-colors">
+                  <p className="font-bold text-sm text-slate-900">{alt.brandName}</p>
+                  <p className="text-xs text-primary font-medium mt-1">{alt.stockAvailability?.inStock ? 'Available' : 'Out of Stock'} • ${alt.price.toFixed(2)}</p>
+                </div>
+              )) : (
+                <p className="text-sm text-slate-500">No alternatives found.</p>
+              )}
             </div>
           </div>
         </div>

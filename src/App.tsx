@@ -13,6 +13,7 @@ import { MedicineDetails } from './pages/MedicineDetails';
 import { MyReservations } from './pages/MyReservations';
 import { PharmacyDashboard } from './pages/PharmacyDashboard';
 import { AdminDashboard } from './pages/AdminDashboard';
+import { PrescriptionOptimizer } from './pages/PrescriptionOptimizer';
 import { AuthProvider } from './context/AuthContext';
 import { Toaster } from 'react-hot-toast';
 
@@ -26,6 +27,7 @@ function App() {
           <Route path="about" element={<About />} />
           <Route path="features" element={<Features />} />
           <Route path="search" element={<SearchMedicine />} />
+          <Route path="optimizer" element={<PrescriptionOptimizer />} />
           <Route path="medicine/:id" element={<MedicineDetails />} />
           <Route path="pharmacies" element={<NearbyPharmacies />} />
           <Route path="reservations" element={<MyReservations />} />
