@@ -2,6 +2,8 @@
 
 "Imagine it's 11:30 PM. A patient's child suddenly develops a high fever. The doctor prescribes an emergency medicine, but after visiting three pharmacies, none have it. Every minute matters. Our platform solves this by showing which nearby pharmacy has the medicine in stock before the patient leaves home."
 
+project deployement link : https://medi-link-liard.vercel.app/
+
 "Google Maps tells you where a place is.
 
 Swiggy tells you which restaurant has food.
