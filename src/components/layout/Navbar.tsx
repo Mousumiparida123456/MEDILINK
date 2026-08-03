@@ -16,7 +16,7 @@ export function Navbar() {
     
     const fetchNotifs = async () => {
       try {
-        const res = await fetch('http://localhost:5000/api/notifications', {
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/notifications`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         if (res.ok) setNotifications(await res.json());
@@ -125,7 +125,7 @@ export function Navbar() {
                         <h3 className="font-bold text-slate-900">Notifications</h3>
                         <button 
                           onClick={async () => {
-                            await fetch('http://localhost:5000/api/notifications/read-all', { method: 'PATCH', headers: { 'Authorization': `Bearer ${token}` }});
+                            await fetch(`${import.meta.env.VITE_API_URL}/api/notifications/read-all`, { method: 'PATCH', headers: { 'Authorization': `Bearer ${token}` }});
                             setNotifications(notifications.map(n => ({ ...n, isRead: true })));
                           }}
                           className="text-xs text-primary font-medium hover:underline"

@@ -71,7 +71,7 @@ export function NearbyPharmacies() {
   const fetchPharmacies = async (lat: number, lng: number) => {
     setLoading(true);
     try {
-      let url = `http://localhost:5000/api/pharmacies/nearby?lat=${lat}&lng=${lng}&maxDistance=${maxDistance}`;
+      let url = `${import.meta.env.VITE_API_URL}/api/pharmacies/nearby?lat=${lat}&lng=${lng}&maxDistance=${maxDistance}`;
       if (filterOpen) url += '&openNow=true';
       if (filterEmergency) url += '&isEmergency=true';
 

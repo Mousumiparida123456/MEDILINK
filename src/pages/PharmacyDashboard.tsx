@@ -31,7 +31,7 @@ export function PharmacyDashboard() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const res = await fetch('http://localhost:5000/api/dashboard/stats', {
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/dashboard/stats`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         const data = await res.json();
@@ -48,7 +48,7 @@ export function PharmacyDashboard() {
   const fetchInventory = async () => {
     setInventoryLoading(true);
     try {
-      const res = await fetch('http://localhost:5000/api/inventory', {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/inventory`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await res.json();
@@ -87,7 +87,7 @@ export function PharmacyDashboard() {
   const handleDelete = async (id: string) => {
     if (!window.confirm('Are you sure you want to delete this medicine?')) return;
     try {
-      const res = await fetch(`http://localhost:5000/api/inventory/${id}`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/inventory/${id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -112,8 +112,8 @@ export function PharmacyDashboard() {
 
     try {
       const url = editingId 
-        ? `http://localhost:5000/api/inventory/${editingId}` 
-        : `http://localhost:5000/api/inventory`;
+        ? `${import.meta.env.VITE_API_URL}/api/inventory/${editingId}` 
+        : `${import.meta.env.VITE_API_URL}/api/inventory`;
       
       const method = editingId ? 'PUT' : 'POST';
 
@@ -130,7 +130,7 @@ export function PharmacyDashboard() {
         setIsFormOpen(false);
         fetchInventory();
         // Refresh dashboard stats silently
-        const statsRes = await fetch('http://localhost:5000/api/dashboard/stats', {
+        const statsRes = await fetch(`${import.meta.env.VITE_API_URL}/api/dashboard/stats`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         if (statsRes.ok) setStats(await statsRes.json());

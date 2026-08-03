@@ -21,9 +21,9 @@ export function AdminDashboard() {
     const fetchData = async () => {
       try {
         const [statsRes, usersRes, pharmRes] = await Promise.all([
-          fetch('http://localhost:5000/api/admin/stats', { headers: { 'Authorization': `Bearer ${token}` } }),
-          fetch('http://localhost:5000/api/admin/users', { headers: { 'Authorization': `Bearer ${token}` } }),
-          fetch('http://localhost:5000/api/admin/pharmacies', { headers: { 'Authorization': `Bearer ${token}` } }),
+          fetch(`${import.meta.env.VITE_API_URL}/api/admin/stats`, { headers: { 'Authorization': `Bearer ${token}` } }),
+          fetch(`${import.meta.env.VITE_API_URL}/api/admin/users`, { headers: { 'Authorization': `Bearer ${token}` } }),
+          fetch(`${import.meta.env.VITE_API_URL}/api/admin/pharmacies`, { headers: { 'Authorization': `Bearer ${token}` } }),
         ]);
 
         if (statsRes.ok) setStats(await statsRes.json());
@@ -42,7 +42,7 @@ export function AdminDashboard() {
   const handleDelete = async (id: string, type: 'user' | 'pharmacy') => {
     if (!confirm(`Are you sure you want to delete this ${type}?`)) return;
     try {
-      const res = await fetch(`http://localhost:5000/api/admin/users/${id}`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/admin/users/${id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -59,7 +59,7 @@ export function AdminDashboard() {
 
   const handleStatusToggle = async (id: string, type: 'user' | 'pharmacy', updates: { isVerified?: boolean, isBanned?: boolean }) => {
     try {
-      const res = await fetch(`http://localhost:5000/api/admin/users/${id}/status`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/admin/users/${id}/status`, {
         method: 'PATCH',
         headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
         body: JSON.stringify(updates)

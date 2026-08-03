@@ -86,7 +86,7 @@ export function SearchMedicine() {
         return;
       }
       try {
-        const res = await fetch(`http://localhost:5000/api/medicines/suggest?q=${query}`);
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/medicines/suggest?q=${query}`);
         const data = await res.json();
         if (Array.isArray(data)) {
            setSuggestions(data);
@@ -107,7 +107,7 @@ export function SearchMedicine() {
     setStep(3); // Move to results step
     
     try {
-      let url = `http://localhost:5000/api/medicines/search?q=${query}&maxPrice=${maxPrice}`;
+      let url = `${import.meta.env.VITE_API_URL}/api/medicines/search?q=${query}&maxPrice=${maxPrice}`;
       if (inStockOnly) url += '&inStock=true';
       if (userLocation) {
         url += `&lat=${userLocation[0]}&lng=${userLocation[1]}&maxDistance=${maxDistance}`;

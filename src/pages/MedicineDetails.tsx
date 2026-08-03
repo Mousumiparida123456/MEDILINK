@@ -33,7 +33,7 @@ export function MedicineDetails() {
   useEffect(() => {
     const fetchMed = async () => {
       try {
-        const res = await fetch(`http://localhost:5000/api/medicines/${id}`);
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/medicines/${id}`);
         if (!res.ok) throw new Error('Not found');
         const data = await res.json();
         setMedicine(data);
@@ -46,7 +46,7 @@ export function MedicineDetails() {
 
     const fetchAlternatives = async () => {
       try {
-        const res = await fetch(`http://localhost:5000/api/medicines/generic/${id}`);
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/medicines/generic/${id}`);
         if (res.ok) {
           setAlternatives(await res.json());
         }
@@ -57,7 +57,7 @@ export function MedicineDetails() {
     
     const fetchReviews = async () => {
       try {
-        const res = await fetch(`http://localhost:5000/api/reviews/${id}`);
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/reviews/${id}`);
         if (res.ok) setReviews(await res.json());
       } catch (err) {
         console.error(err);
@@ -87,7 +87,7 @@ export function MedicineDetails() {
       formData.append('pickupTime', new Date(pickupTime).toISOString());
       if (file) formData.append('prescription', file);
 
-      const res = await fetch('http://localhost:5000/api/reservations', {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/reservations`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -112,7 +112,7 @@ export function MedicineDetails() {
     if (!isAuthenticated) return navigate('/login');
     
     try {
-      const res = await fetch('http://localhost:5000/api/reviews', {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/reviews`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify({ medicineId: medicine._id, rating: reviewRating, comment: reviewComment })
@@ -132,7 +132,7 @@ export function MedicineDetails() {
   const handleLikeReview = async (reviewId: string) => {
     if (!isAuthenticated) return navigate('/login');
     try {
-      const res = await fetch(`http://localhost:5000/api/reviews/${reviewId}/like`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/reviews/${reviewId}/like`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` }
       });

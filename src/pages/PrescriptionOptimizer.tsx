@@ -57,7 +57,7 @@ export function PrescriptionOptimizer() {
         body.lng = userLocation[1];
       }
 
-      const res = await fetch('http://localhost:5000/api/optimizer/optimize', {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/optimizer/optimize`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body)
@@ -82,7 +82,7 @@ export function PrescriptionOptimizer() {
 
     const planData = plans[selectedPlan];
     try {
-      const res = await fetch('http://localhost:5000/api/optimizer/reserve', {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/optimizer/reserve`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
