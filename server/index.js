@@ -15,7 +15,14 @@ const inventoryRoutes = require('./src/routes/inventory');
 
 const app = express();
 
-app.use(cors());
+app.use(cors({
+  origin: [
+    "http://localhost:5173",
+    // Replace this with your actual frontend URL once you deploy it:
+    "https://your-frontend-project.vercel.app" 
+  ],
+  credentials: true
+}));
 app.use(express.json());
 
 app.use('/uploads', express.static('uploads'));
