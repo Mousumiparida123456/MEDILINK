@@ -18,8 +18,7 @@ const app = express();
 app.use(cors({
   origin: [
     "http://localhost:5173",
-    // Replace this with your actual frontend URL once you deploy it:
-    "https://your-frontend-project.vercel.app" 
+    "https://medi-link-liard.vercel.app"
   ],
   credentials: true
 }));
