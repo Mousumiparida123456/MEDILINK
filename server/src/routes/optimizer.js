@@ -1,7 +1,5 @@
 const router = require('express').Router();
-const Basket = require('../models/Basket');
-const Medicine = require('../models/Medicine');
-const Reservation = require('../models/Reservation');
+const prisma = require('../utils/prisma');
 
 // Helper to calculate distance in km
 function calculateDistance(lat1, lon1, lat2, lon2) {
@@ -22,14 +20,24 @@ router.post('/basket', async (req, res) => {
     const { userId, items } = req.body;
     // In a real app, userId comes from req.user
     
-    let basket = await Basket.findOne({ userId });
-    if (!basket) {
-      basket = new Basket({ userId, items: [] });
-    }
+    const formattedItems = items.map(i => ({ genericName: i.genericName, quantity: Number(i.quantity) || 1 }));
     
-    // Update items
-    basket.items = items;
-    await basket.save();
+    const basket = await prisma.basket.upsert({
+      where: { userId },
+      create: {
+        userId,
+        items: {
+          create: formattedItems
+        }
+      },
+      update: {
+        items: {
+          deleteMany: {},
+          create: formattedItems
+        }
+      },
+      include: { items: true }
+    });
     
     res.json(basket);
   } catch (err) {
@@ -39,7 +47,10 @@ router.post('/basket', async (req, res) => {
 
 router.get('/basket/:userId', async (req, res) => {
   try {
-    const basket = await Basket.findOne({ userId: req.params.userId });
+    const basket = await prisma.basket.findUnique({
+      where: { userId: req.params.userId },
+      include: { items: true }
+    });
     res.json(basket || { items: [] });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -54,13 +65,16 @@ router.post('/optimize', async (req, res) => {
     
     if (!items || items.length === 0) return res.status(400).json({ message: 'Basket is empty' });
 
-    const genericNames = items.map(i => new RegExp(`^${i.genericName}$`, 'i'));
-    
     // Fetch all available medicines matching the basket
-    const inventory = await Medicine.find({
-      genericName: { $in: genericNames },
-      'stockAvailability.inStock': true
-    }).populate('pharmacyId', 'name email location');
+    const inventory = await prisma.medicine.findMany({
+      where: {
+        OR: items.map(i => ({ genericName: { equals: i.genericName, mode: 'insensitive' } })),
+        inStock: true
+      },
+      include: {
+        pharmacy: { select: { id: true, name: true, email: true, latitude: true, longitude: true } }
+      }
+    });
 
     if (inventory.length === 0) {
       return res.status(400).json({ message: 'None of the requested medicines are available' });
@@ -75,22 +89,28 @@ router.post('/optimize', async (req, res) => {
 
         const details = selectedItems.map(item => {
             totalPrice += item.medicine.price * item.quantity;
-            pharmacySet.add(item.medicine.pharmacyId._id.toString());
+            pharmacySet.add(item.medicine.pharmacy.id.toString());
             
             // Calculate distance segment if lat/lng available
             let dist = 0;
-            if (item.medicine.pharmacyId.location && item.medicine.pharmacyId.location.coordinates) {
-                const [pLng, pLat] = item.medicine.pharmacyId.location.coordinates;
+            if (item.medicine.pharmacy.latitude != null && item.medicine.pharmacy.longitude != null) {
+                const pLat = item.medicine.pharmacy.latitude;
+                const pLng = item.medicine.pharmacy.longitude;
                 dist = calculateDistance(lastLat, lastLng, pLat, pLng);
             }
             
             return {
-                medicineId: item.medicine._id,
+                medicineId: item.medicine.id,
                 brandName: item.medicine.brandName,
                 genericName: item.medicine.genericName,
                 price: item.medicine.price,
                 quantity: item.quantity,
-                pharmacy: item.medicine.pharmacyId,
+                pharmacy: {
+                  _id: item.medicine.pharmacy.id,
+                  name: item.medicine.pharmacy.name,
+                  email: item.medicine.pharmacy.email,
+                  location: { type: 'Point', coordinates: [item.medicine.pharmacy.longitude, item.medicine.pharmacy.latitude] }
+                },
                 distanceSegment: dist
             };
         });
@@ -132,7 +152,7 @@ router.post('/optimize', async (req, res) => {
     // Pure greedy: for each item, pick the absolute cheapest option
     let cheapestItems = [];
     items.forEach(reqItem => {
-        const matches = inventory.filter(m => m.genericName.toLowerCase() === reqItem.genericName.toLowerCase() && m.stockAvailability.quantity >= reqItem.quantity);
+        const matches = inventory.filter(m => m.genericName.toLowerCase() === reqItem.genericName.toLowerCase() && m.quantity >= reqItem.quantity);
         if (matches.length > 0) {
             matches.sort((a, b) => a.price - b.price);
             cheapestItems.push({ medicine: matches[0], quantity: reqItem.quantity });
@@ -151,8 +171,8 @@ router.post('/optimize', async (req, res) => {
         let pharmacyCoverage = {};
         availableInventory.forEach(m => {
             const reqItem = unfulfilled.find(i => i.genericName.toLowerCase() === m.genericName.toLowerCase());
-            if (reqItem && m.stockAvailability.quantity >= reqItem.quantity) {
-                const pId = m.pharmacyId._id.toString();
+            if (reqItem && m.quantity >= reqItem.quantity) {
+                const pId = m.pharmacy.id.toString();
                 if (!pharmacyCoverage[pId]) pharmacyCoverage[pId] = [];
                 pharmacyCoverage[pId].push({ medicine: m, quantity: reqItem.quantity });
             }
@@ -191,12 +211,13 @@ router.post('/optimize', async (req, res) => {
         let pharmacyCoverage = {};
         availableInventory.forEach(m => {
             const reqItem = unfulfilled.find(i => i.genericName.toLowerCase() === m.genericName.toLowerCase());
-            if (reqItem && m.stockAvailability.quantity >= reqItem.quantity) {
-                const pId = m.pharmacyId._id.toString();
+            if (reqItem && m.quantity >= reqItem.quantity) {
+                const pId = m.pharmacy.id.toString();
                 if (!pharmacyCoverage[pId]) {
                     let dist = Number.MAX_VALUE;
-                    if (m.pharmacyId.location && m.pharmacyId.location.coordinates) {
-                        const [pLng, pLat] = m.pharmacyId.location.coordinates;
+                    if (m.pharmacy.latitude != null && m.pharmacy.longitude != null) {
+                        const pLat = m.pharmacy.latitude;
+                        const pLng = m.pharmacy.longitude;
                         dist = calculateDistance(currentLat, currentLng, pLat, pLng);
                     }
                     pharmacyCoverage[pId] = { matches: [], distance: dist };
@@ -228,9 +249,9 @@ router.post('/optimize', async (req, res) => {
         });
 
         // update current location to this pharmacy
-        if (bestCoverage.matches[0].medicine.pharmacyId.location && bestCoverage.matches[0].medicine.pharmacyId.location.coordinates) {
-             currentLng = bestCoverage.matches[0].medicine.pharmacyId.location.coordinates[0];
-             currentLat = bestCoverage.matches[0].medicine.pharmacyId.location.coordinates[1];
+        if (bestCoverage.matches[0].medicine.pharmacy.latitude != null && bestCoverage.matches[0].medicine.pharmacy.longitude != null) {
+             currentLat = bestCoverage.matches[0].medicine.pharmacy.latitude;
+             currentLng = bestCoverage.matches[0].medicine.pharmacy.longitude;
         }
     }
     const fastestPlan = buildPlanResponse('fastest', fastestItems);
@@ -261,17 +282,18 @@ router.post('/reserve', async (req, res) => {
     for (const detail of plan.details) {
         const qrToken = `RES-${Date.now()}-${Math.random().toString(36).substr(2, 5).toUpperCase()}`;
         
-        const reservation = new Reservation({
+        const reservation = await prisma.reservation.create({
+          data: {
             userId: userId || '000000000000000000000000', // mocked for demo if unauth
             pharmacyId: detail.pharmacy._id,
             medicineId: detail.medicineId,
-            quantity: detail.quantity,
+            quantity: Number(detail.quantity),
             pickupTime: new Date(Date.now() + 2 * 60 * 60 * 1000), // 2 hours from now
             status: 'pending',
             qrCodeToken: qrToken
+          }
         });
         
-        await reservation.save();
         reservations.push(reservation);
     }
 

@@ -1,13 +1,21 @@
 const router = require('express').Router();
-const User = require('../models/User');
-const Reservation = require('../models/Reservation');
+const prisma = require('../utils/prisma');
 const { auth, authorize } = require('../middleware/auth');
+
+// Helper to remove password
+const excludePassword = (user) => {
+  const { password, ...userWithoutPassword } = user;
+  return userWithoutPassword;
+};
 
 // Get all users
 router.get('/users', auth, authorize(['admin']), async (req, res) => {
   try {
-    const users = await User.find({ role: 'user' }).select('-password').sort('-createdAt');
-    res.json(users);
+    const users = await prisma.user.findMany({
+      where: { role: 'user' },
+      orderBy: { createdAt: 'desc' }
+    });
+    res.json(users.map(excludePassword));
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -16,8 +24,11 @@ router.get('/users', auth, authorize(['admin']), async (req, res) => {
 // Get all pharmacies
 router.get('/pharmacies', auth, authorize(['admin']), async (req, res) => {
   try {
-    const pharmacies = await User.find({ role: 'pharmacy' }).select('-password').sort('-createdAt');
-    res.json(pharmacies);
+    const pharmacies = await prisma.user.findMany({
+      where: { role: 'pharmacy' },
+      orderBy: { createdAt: 'desc' }
+    });
+    res.json(pharmacies.map(excludePassword));
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -26,9 +37,9 @@ router.get('/pharmacies', auth, authorize(['admin']), async (req, res) => {
 // Get platform stats
 router.get('/stats', auth, authorize(['admin']), async (req, res) => {
   try {
-    const totalUsers = await User.countDocuments({ role: 'user' });
-    const totalPharmacies = await User.countDocuments({ role: 'pharmacy' });
-    const totalReservations = await Reservation.countDocuments();
+    const totalUsers = await prisma.user.count({ where: { role: 'user' } });
+    const totalPharmacies = await prisma.user.count({ where: { role: 'pharmacy' } });
+    const totalReservations = await prisma.reservation.count();
     
     // Revenue mock - in real app would aggregate completed reservations * medicine price
     const platformRevenue = 15400; 
@@ -47,10 +58,12 @@ router.get('/stats', auth, authorize(['admin']), async (req, res) => {
 // Delete user or pharmacy
 router.delete('/users/:id', auth, authorize(['admin']), async (req, res) => {
   try {
-    const user = await User.findByIdAndDelete(req.params.id);
-    if (!user) return res.status(404).json({ message: 'User not found' });
+    const user = await prisma.user.delete({ where: { id: req.params.id } });
     res.json({ message: 'User deleted successfully' });
   } catch (err) {
+    if (err.code === 'P2025') {
+      return res.status(404).json({ message: 'User not found' });
+    }
     res.status(500).json({ error: err.message });
   }
 });
@@ -59,15 +72,21 @@ router.delete('/users/:id', auth, authorize(['admin']), async (req, res) => {
 router.patch('/users/:id/status', auth, authorize(['admin']), async (req, res) => {
   try {
     const { isVerified, isBanned } = req.body;
-    const user = await User.findById(req.params.id);
-    if (!user) return res.status(404).json({ message: 'User not found' });
     
-    if (isVerified !== undefined) user.isVerified = isVerified;
-    if (isBanned !== undefined) user.isBanned = isBanned;
+    const data = {};
+    if (isVerified !== undefined) data.isVerified = isVerified;
+    if (isBanned !== undefined) data.isBanned = isBanned;
     
-    await user.save();
-    res.json(user);
+    const user = await prisma.user.update({
+      where: { id: req.params.id },
+      data
+    });
+    
+    res.json(excludePassword(user));
   } catch (err) {
+    if (err.code === 'P2025') {
+      return res.status(404).json({ message: 'User not found' });
+    }
     res.status(500).json({ error: err.message });
   }
 });

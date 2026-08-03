@@ -1,15 +1,26 @@
 const router = require('express').Router();
-const Review = require('../models/Review');
-const Reservation = require('../models/Reservation');
+const prisma = require('../utils/prisma');
 const { auth } = require('../middleware/auth');
 
 // Get reviews for a medicine
 router.get('/:medicineId', async (req, res) => {
   try {
-    const reviews = await Review.find({ medicineId: req.params.medicineId })
-      .populate('userId', 'name')
-      .sort('-createdAt');
-    res.json(reviews);
+    const reviews = await prisma.review.findMany({
+      where: { medicineId: req.params.medicineId },
+      include: {
+        user: { select: { name: true } }
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+    
+    // Map to match frontend expectation (userId is populated object)
+    const formattedReviews = reviews.map(r => ({
+      ...r,
+      _id: r.id,
+      userId: r.user
+    }));
+    
+    res.json(formattedReviews);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -21,26 +32,31 @@ router.post('/', auth, async (req, res) => {
     const { medicineId, rating, comment } = req.body;
     
     // Check if user has a completed reservation for this medicine
-    const pastReservation = await Reservation.findOne({
-      userId: req.user.id,
-      medicineId,
-      status: 'completed'
+    const pastReservation = await prisma.reservation.findFirst({
+      where: {
+        userId: req.user.id,
+        medicineId,
+        status: 'completed'
+      }
     });
 
-    const review = new Review({
-      userId: req.user.id,
-      medicineId,
-      rating,
-      comment,
-      isVerifiedPurchase: !!pastReservation
+    const review = await prisma.review.create({
+      data: {
+        userId: req.user.id,
+        medicineId,
+        rating: Number(rating),
+        comment,
+        isVerifiedPurchase: !!pastReservation
+      },
+      include: {
+        user: { select: { name: true } }
+      }
     });
 
-    await review.save();
-    
     // In a real app, we would update the Medicine's average rating here.
     
-    await review.populate('userId', 'name');
-    res.status(201).json(review);
+    const formattedReview = { ...review, _id: review.id, userId: review.user };
+    res.status(201).json(formattedReview);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -49,18 +65,42 @@ router.post('/', auth, async (req, res) => {
 // Like a review
 router.post('/:id/like', auth, async (req, res) => {
   try {
-    const review = await Review.findById(req.params.id);
+    const review = await prisma.review.findUnique({
+      where: { id: req.params.id },
+      include: { likes: { select: { id: true } } }
+    });
+    
     if (!review) return res.status(404).json({ message: 'Review not found' });
 
-    const index = review.likes.indexOf(req.user.id);
-    if (index === -1) {
-      review.likes.push(req.user.id);
+    const hasLiked = review.likes.some(u => u.id === req.user.id);
+    
+    let updatedReview;
+    if (!hasLiked) {
+      updatedReview = await prisma.review.update({
+        where: { id: review.id },
+        data: {
+          likes: { connect: { id: req.user.id } }
+        },
+        include: { likes: { select: { id: true } } }
+      });
     } else {
-      review.likes.splice(index, 1);
+      updatedReview = await prisma.review.update({
+        where: { id: review.id },
+        data: {
+          likes: { disconnect: { id: req.user.id } }
+        },
+        include: { likes: { select: { id: true } } }
+      });
     }
     
-    await review.save();
-    res.json(review);
+    // Format back to array of IDs to match older mongoose schema
+    const formatted = {
+      ...updatedReview,
+      _id: updatedReview.id,
+      likes: updatedReview.likes.map(u => u.id)
+    };
+    
+    res.json(formatted);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

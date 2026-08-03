@@ -2,10 +2,7 @@ const router = require('express').Router();
 const multer = require('multer');
 const path = require('path');
 const crypto = require('crypto');
-const Reservation = require('../models/Reservation');
-const Medicine = require('../models/Medicine');
-const Notification = require('../models/Notification');
-const User = require('../models/User');
+const prisma = require('../utils/prisma');
 const { auth, authorize } = require('../middleware/auth');
 const { sendEmail } = require('../utils/email');
 
@@ -24,39 +21,45 @@ const upload = multer({ storage });
 router.post('/', auth, upload.single('prescription'), async (req, res) => {
   try {
     const { pharmacyId, medicineId, quantity, pickupTime } = req.body;
+    const parsedQuantity = Number(quantity) || 1;
     
     // Check medicine stock
-    const medicine = await Medicine.findById(medicineId);
-    if (!medicine || medicine.stockAvailability.quantity < quantity) {
+    const medicine = await prisma.medicine.findUnique({ where: { id: medicineId } });
+    if (!medicine || medicine.quantity < parsedQuantity) {
       return res.status(400).json({ message: 'Insufficient stock or medicine not found' });
     }
 
     const qrCodeToken = crypto.randomBytes(16).toString('hex');
     const prescriptionUrl = req.file ? `/uploads/${req.file.filename}` : null;
 
-    const reservation = new Reservation({
-      userId: req.user.id,
-      pharmacyId,
-      medicineId,
-      quantity,
-      pickupTime,
-      prescriptionUrl,
-      qrCodeToken
+    const reservation = await prisma.reservation.create({
+      data: {
+        userId: req.user.id,
+        pharmacyId,
+        medicineId,
+        quantity: parsedQuantity,
+        pickupTime: new Date(pickupTime),
+        prescriptionUrl,
+        qrCodeToken
+      }
     });
 
-    await reservation.save();
-
     // Deduct stock temporarily (basic logic)
-    medicine.stockAvailability.quantity -= quantity;
-    if (medicine.stockAvailability.quantity === 0) medicine.stockAvailability.inStock = false;
-    await medicine.save();
+    const newQuantity = medicine.quantity - parsedQuantity;
+    await prisma.medicine.update({
+      where: { id: medicineId },
+      data: {
+        quantity: newQuantity,
+        inStock: newQuantity > 0
+      }
+    });
 
     // Send Reservation Confirmation Email
     sendEmail(
       req.user.email,
       'Reservation Confirmed - MediLink',
       `<h2>Reservation Confirmed!</h2>
-       <p>You have successfully reserved <b>${quantity}x ${medicine.brandName}</b>.</p>
+       <p>You have successfully reserved <b>${parsedQuantity}x ${medicine.brandName}</b>.</p>
        <p>Please present this QR Code token at the pharmacy: <strong>${qrCodeToken}</strong></p>
        <p>Pickup time: ${new Date(pickupTime).toLocaleString()}</p>`
     ).catch(console.error);
@@ -70,11 +73,24 @@ router.post('/', auth, upload.single('prescription'), async (req, res) => {
 // Get user reservations
 router.get('/my-reservations', auth, async (req, res) => {
   try {
-    const reservations = await Reservation.find({ userId: req.user.id })
-      .populate('medicineId', 'brandName genericName price')
-      .populate('pharmacyId', 'name')
-      .sort('-createdAt');
-    res.json(reservations);
+    const reservations = await prisma.reservation.findMany({
+      where: { userId: req.user.id },
+      include: {
+        medicine: { select: { brandName: true, genericName: true, price: true } },
+        pharmacy: { select: { name: true } }
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+
+    // Map output to match frontend expectations (medicineId becomes the populated object)
+    const formattedReservations = reservations.map(r => ({
+      ...r,
+      _id: r.id,
+      medicineId: r.medicine,
+      pharmacyId: r.pharmacy
+    }));
+    
+    res.json(formattedReservations);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -84,24 +100,30 @@ router.get('/my-reservations', auth, async (req, res) => {
 router.patch('/:id/status', auth, authorize(['pharmacy']), async (req, res) => {
   try {
     const { status } = req.body;
-    const reservation = await Reservation.findOne({ _id: req.params.id, pharmacyId: req.user.id })
-      .populate('medicineId');
+    let reservation = await prisma.reservation.findFirst({
+      where: { id: req.params.id, pharmacyId: req.user.id },
+      include: { medicine: true }
+    });
       
     if (!reservation) return res.status(404).json({ message: 'Reservation not found' });
     
-    reservation.status = status;
-    await reservation.save();
+    reservation = await prisma.reservation.update({
+      where: { id: reservation.id },
+      data: { status }
+    });
     
     // Notification logic
-    const patientUser = await User.findById(reservation.userId);
+    const patientUser = await prisma.user.findUnique({ where: { id: reservation.userId } });
     if (patientUser) {
-      const message = `Your reservation for ${reservation.medicineId.brandName} has been ${status}.`;
+      const message = `Your reservation for ${reservation.medicine.brandName} has been ${status}.`;
       
-      await Notification.create({
-        userId: patientUser._id,
-        title: 'Reservation Update',
-        message: message,
-        type: 'reservation_status'
+      await prisma.notification.create({
+        data: {
+          userId: patientUser.id,
+          title: 'Reservation Update',
+          message: message,
+          type: 'reservation_status'
+        }
       });
       
       // Send Email

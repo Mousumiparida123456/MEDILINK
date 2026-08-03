@@ -1,0 +1,136 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         String  @id @default(uuid())
+  name       String
+  email      String  @unique
+  password   String
+  role       String  @default("user") // 'user', 'pharmacy', 'admin'
+  isVerified Boolean @default(false)
+  isBanned   Boolean @default(false)
+
+  // Location stored as separate floats since Prisma doesn't natively support PostGIS points without raw types
+  latitude  Float?
+  longitude Float?
+
+  isOpen               Boolean   @default(true)
+  isEmergency          Boolean   @default(false)
+  resetPasswordToken   String?
+  resetPasswordExpires DateTime?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+
+  // Relations
+  medicines              Medicine[]     @relation("PharmacyMedicines")
+  reservationsAsUser     Reservation[]  @relation("UserReservations")
+  reservationsAsPharmacy Reservation[]  @relation("PharmacyReservations")
+  reviews                Review[]       @relation("UserReviews")
+  likedReviews           Review[]       @relation("UserLikedReviews")
+  basket                 Basket?
+  notifications          Notification[]
+}
+
+model Medicine {
+  id           String   @id @default(uuid())
+  brandName    String
+  genericName  String
+  diseaseTags  String[]
+  price        Float
+  manufacturer String   @default("Unknown")
+  dosage       String   @default("As prescribed")
+  uses         String[]
+  sideEffects  String[]
+  imageUrl     String   @default("")
+
+  inStock  Boolean @default(true)
+  quantity Int     @default(0)
+
+  pharmacyId   String?
+  pharmacy     User?   @relation("PharmacyMedicines", fields: [pharmacyId], references: [id])
+  pharmacyName String? // denormalized
+
+  latitude  Float?
+  longitude Float?
+
+  rating    Float    @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Self-relation for alternatives
+  alternatives   Medicine[] @relation("MedicineAlternatives")
+  alternativesOf Medicine[] @relation("MedicineAlternatives")
+
+  // Relations
+  reservations Reservation[]
+  reviews      Review[]
+}
+
+model Reservation {
+  id              String   @id @default(uuid())
+  userId          String
+  user            User     @relation("UserReservations", fields: [userId], references: [id])
+  pharmacyId      String
+  pharmacy        User     @relation("PharmacyReservations", fields: [pharmacyId], references: [id])
+  medicineId      String
+  medicine        Medicine @relation(fields: [medicineId], references: [id])
+  quantity        Int      @default(1)
+  pickupTime      DateTime
+  status          String   @default("pending") // 'pending', 'confirmed', 'completed', 'cancelled'
+  prescriptionUrl String?
+  qrCodeToken     String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model Review {
+  id                 String   @id @default(uuid())
+  userId             String
+  user               User     @relation("UserReviews", fields: [userId], references: [id])
+  medicineId         String
+  medicine           Medicine @relation(fields: [medicineId], references: [id])
+  rating             Int
+  comment            String
+  isVerifiedPurchase Boolean  @default(false)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  // Users who liked this review
+  likes User[] @relation("UserLikedReviews")
+}
+
+model Basket {
+  id        String       @id @default(uuid())
+  userId    String       @unique
+  user      User         @relation(fields: [userId], references: [id])
+  items     BasketItem[]
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+}
+
+model BasketItem {
+  id          String @id @default(uuid())
+  basketId    String
+  basket      Basket @relation(fields: [basketId], references: [id], onDelete: Cascade)
+  genericName String
+  quantity    Int    @default(1)
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  title     String
+  message   String
+  type      String   @default("system") // 'reservation_status', 'stock_alert', 'system'
+  isRead    Boolean  @default(false)
+  link      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

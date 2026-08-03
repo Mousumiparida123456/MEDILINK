@@ -17,10 +17,22 @@ L.Icon.Default.mergeOptions({
 function MapUpdater({ center }: { center: [number, number] }) {
   const map = useMap();
   useEffect(() => {
-    map.setView(center, map.getZoom());
+    map.flyTo(center, 7); // Use flyTo for smooth transition, zoom level 7 is good for state view
   }, [center, map]);
   return null;
 }
+
+const INDIAN_STATES = [
+  { name: 'Current Location', coords: null },
+  { name: 'Delhi', coords: [28.7041, 77.1025] as [number, number] },
+  { name: 'Maharashtra', coords: [19.7515, 75.7139] as [number, number] },
+  { name: 'Karnataka', coords: [15.3173, 75.7139] as [number, number] },
+  { name: 'Tamil Nadu', coords: [11.1271, 78.6569] as [number, number] },
+  { name: 'West Bengal', coords: [22.9868, 87.8550] as [number, number] },
+  { name: 'Uttar Pradesh', coords: [26.8467, 80.9462] as [number, number] },
+  { name: 'Gujarat', coords: [22.2587, 71.1924] as [number, number] },
+  { name: 'Rajasthan', coords: [27.0238, 74.2179] as [number, number] }
+];
 
 export function NearbyPharmacies() {
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
@@ -28,9 +40,12 @@ export function NearbyPharmacies() {
   const [loading, setLoading] = useState(true);
   const [filterOpen, setFilterOpen] = useState(false);
   const [filterEmergency, setFilterEmergency] = useState(false);
+  const [selectedState, setSelectedState] = useState<string>('Current Location');
+  const [maxDistance, setMaxDistance] = useState(50); // Increased distance to find shops in state view
 
-  useEffect(() => {
-    // Get user location
+  const fallbackLocation: [number, number] = [28.7041, 77.1025]; // New Delhi
+
+  const fetchUserLocation = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
@@ -39,21 +54,24 @@ export function NearbyPharmacies() {
         },
         (error) => {
           console.error("Geolocation error:", error);
-          // Fallback location (e.g. city center)
-          const fallback: [number, number] = [40.7128, -74.0060];
-          setUserLocation(fallback);
-          fetchPharmacies(fallback[0], fallback[1]);
+          setUserLocation(fallbackLocation);
+          fetchPharmacies(fallbackLocation[0], fallbackLocation[1]);
         }
       );
     } else {
-      fetchPharmacies(40.7128, -74.0060);
+      setUserLocation(fallbackLocation);
+      fetchPharmacies(fallbackLocation[0], fallbackLocation[1]);
     }
+  };
+
+  useEffect(() => {
+    fetchUserLocation();
   }, []);
 
   const fetchPharmacies = async (lat: number, lng: number) => {
     setLoading(true);
     try {
-      let url = `http://localhost:5000/api/pharmacies/nearby?lat=${lat}&lng=${lng}`;
+      let url = `http://localhost:5000/api/pharmacies/nearby?lat=${lat}&lng=${lng}&maxDistance=${maxDistance}`;
       if (filterOpen) url += '&openNow=true';
       if (filterEmergency) url += '&isEmergency=true';
 
@@ -76,7 +94,22 @@ export function NearbyPharmacies() {
     if (userLocation) {
       fetchPharmacies(userLocation[0], userLocation[1]);
     }
-  }, [filterOpen, filterEmergency]);
+  }, [filterOpen, filterEmergency, maxDistance]);
+
+  const handleStateChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const stateName = e.target.value;
+    setSelectedState(stateName);
+    
+    const stateObj = INDIAN_STATES.find(s => s.name === stateName);
+    if (stateObj && stateObj.coords) {
+      setUserLocation(stateObj.coords);
+      setMaxDistance(200); // Search wider area when looking at a whole state
+      fetchPharmacies(stateObj.coords[0], stateObj.coords[1]);
+    } else {
+      setMaxDistance(50);
+      fetchUserLocation();
+    }
+  };
 
   return (
     <div className="flex flex-col lg:flex-row h-[calc(100vh-80px)] overflow-hidden bg-slate-50">
@@ -86,6 +119,19 @@ export function NearbyPharmacies() {
         <div className="p-6 border-b border-slate-100">
           <h1 className="text-2xl font-extrabold text-slate-900 mb-4">Nearby Pharmacies</h1>
           
+          <div className="mb-4">
+            <label className="block text-sm font-bold text-slate-700 mb-2">Select Location</label>
+            <select 
+              value={selectedState}
+              onChange={handleStateChange}
+              className="w-full border border-slate-200 rounded-xl py-2 px-3 focus:ring-primary focus:border-primary transition-all text-sm outline-none"
+            >
+              {INDIAN_STATES.map((state) => (
+                <option key={state.name} value={state.name}>{state.name}</option>
+              ))}
+            </select>
+          </div>
+
           <div className="flex flex-wrap gap-3">
             <button 
               onClick={() => setFilterOpen(!filterOpen)}

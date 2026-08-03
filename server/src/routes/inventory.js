@@ -1,13 +1,16 @@
 const router = require('express').Router();
-const Medicine = require('../models/Medicine');
-const User = require('../models/User');
+const prisma = require('../utils/prisma');
 const { auth, authorize } = require('../middleware/auth');
 
 // Get all medicines for the logged-in pharmacy
 router.get('/', auth, authorize(['pharmacy']), async (req, res) => {
   try {
-    const medicines = await Medicine.find({ pharmacyId: req.user.id });
-    res.json(medicines);
+    const medicines = await prisma.medicine.findMany({
+      where: { pharmacyId: req.user.id },
+      orderBy: { createdAt: 'desc' }
+    });
+    // Add _id for frontend compatibility
+    res.json(medicines.map(m => ({ ...m, _id: m.id })));
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -16,18 +19,20 @@ router.get('/', auth, authorize(['pharmacy']), async (req, res) => {
 // Add a new medicine to inventory
 router.post('/', auth, authorize(['pharmacy']), async (req, res) => {
   try {
-    const pharmacy = await User.findById(req.user.id);
+    const pharmacy = await prisma.user.findUnique({ where: { id: req.user.id } });
     if (!pharmacy) return res.status(404).json({ message: 'Pharmacy not found' });
 
-    const newMedicine = new Medicine({
-      ...req.body,
-      pharmacyId: req.user.id,
-      pharmacyName: pharmacy.name,
-      location: pharmacy.location
+    const newMedicine = await prisma.medicine.create({
+      data: {
+        ...req.body,
+        pharmacyId: req.user.id,
+        pharmacyName: pharmacy.name,
+        latitude: pharmacy.latitude,
+        longitude: pharmacy.longitude
+      }
     });
 
-    await newMedicine.save();
-    res.status(201).json(newMedicine);
+    res.status(201).json({ ...newMedicine, _id: newMedicine.id });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -36,13 +41,17 @@ router.post('/', auth, authorize(['pharmacy']), async (req, res) => {
 // Update a medicine (stock, price, etc.)
 router.put('/:id', auth, authorize(['pharmacy']), async (req, res) => {
   try {
-    const medicine = await Medicine.findOneAndUpdate(
-      { _id: req.params.id, pharmacyId: req.user.id },
-      { $set: req.body },
-      { new: true }
-    );
-    if (!medicine) return res.status(404).json({ message: 'Medicine not found or unauthorized' });
-    res.json(medicine);
+    const existing = await prisma.medicine.findFirst({
+      where: { id: req.params.id, pharmacyId: req.user.id }
+    });
+    if (!existing) return res.status(404).json({ message: 'Medicine not found or unauthorized' });
+
+    const updatedMedicine = await prisma.medicine.update({
+      where: { id: existing.id },
+      data: req.body
+    });
+    
+    res.json({ ...updatedMedicine, _id: updatedMedicine.id });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -51,8 +60,15 @@ router.put('/:id', auth, authorize(['pharmacy']), async (req, res) => {
 // Delete a medicine
 router.delete('/:id', auth, authorize(['pharmacy']), async (req, res) => {
   try {
-    const medicine = await Medicine.findOneAndDelete({ _id: req.params.id, pharmacyId: req.user.id });
-    if (!medicine) return res.status(404).json({ message: 'Medicine not found or unauthorized' });
+    const existing = await prisma.medicine.findFirst({
+      where: { id: req.params.id, pharmacyId: req.user.id }
+    });
+    if (!existing) return res.status(404).json({ message: 'Medicine not found or unauthorized' });
+
+    await prisma.medicine.delete({
+      where: { id: existing.id }
+    });
+    
     res.json({ message: 'Medicine deleted successfully' });
   } catch (err) {
     res.status(500).json({ error: err.message });

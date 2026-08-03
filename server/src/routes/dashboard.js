@@ -1,6 +1,5 @@
 const router = require('express').Router();
-const Reservation = require('../models/Reservation');
-const Medicine = require('../models/Medicine');
+const prisma = require('../utils/prisma');
 const { auth, authorize } = require('../middleware/auth');
 
 router.get('/stats', auth, authorize(['pharmacy', 'admin']), async (req, res) => {
@@ -8,10 +7,22 @@ router.get('/stats', auth, authorize(['pharmacy', 'admin']), async (req, res) =>
     const pharmacyId = req.user.id;
 
     // 1. Total Medicines
-    const totalMedicines = await Medicine.countDocuments({ pharmacyId });
+    const totalMedicines = await prisma.medicine.count({ where: { pharmacyId } });
 
     // 2. Low Stock Alerts
-    const lowStock = await Medicine.find({ pharmacyId, 'stockAvailability.quantity': { $lt: 10 } }).select('brandName stockAvailability');
+    const lowStock = await prisma.medicine.findMany({
+      where: { pharmacyId, quantity: { lt: 10 } },
+      select: { brandName: true, inStock: true, quantity: true }
+    });
+
+    // Format output to match old frontend schema slightly if needed
+    const formattedLowStock = lowStock.map(item => ({
+      brandName: item.brandName,
+      stockAvailability: {
+        inStock: item.inStock,
+        quantity: item.quantity
+      }
+    }));
 
     // 3. Today's Reservations
     const startOfDay = new Date();
@@ -19,9 +30,11 @@ router.get('/stats', auth, authorize(['pharmacy', 'admin']), async (req, res) =>
     const endOfDay = new Date();
     endOfDay.setHours(23, 59, 59, 999);
     
-    const todaysReservations = await Reservation.countDocuments({
-      pharmacyId,
-      createdAt: { $gte: startOfDay, $lte: endOfDay }
+    const todaysReservations = await prisma.reservation.count({
+      where: {
+        pharmacyId,
+        createdAt: { gte: startOfDay, lte: endOfDay }
+      }
     });
 
     // 4. Mock Revenue Chart Data
@@ -38,8 +51,8 @@ router.get('/stats', auth, authorize(['pharmacy', 'admin']), async (req, res) =>
     res.json({
       totalMedicines,
       todaysReservations,
-      lowStockCount: lowStock.length,
-      lowStockItems: lowStock,
+      lowStockCount: formattedLowStock.length,
+      lowStockItems: formattedLowStock,
       revenueData
     });
 
