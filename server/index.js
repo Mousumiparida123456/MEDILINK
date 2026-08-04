@@ -26,6 +26,9 @@ app.use(express.json());
 
 app.use('/uploads', express.static('uploads'));
 
+// Health check
+app.get('/', (req, res) => res.json({ status: 'MediLink Backend Running' }));
+
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/medicines', medicineRoutes);
