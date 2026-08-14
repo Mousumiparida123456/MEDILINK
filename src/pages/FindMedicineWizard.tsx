@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap, Circle } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
-import { MapPin, Navigation, Clock, Search, AlertCircle, Phone, ArrowRight, ShieldCheck, Check } from 'lucide-react';
+import { MapPin, Navigation, Search, AlertCircle, ArrowRight, ShieldCheck, Check } from 'lucide-react';
 import clsx from 'clsx';
 import { useNavigate } from 'react-router-dom';
 
