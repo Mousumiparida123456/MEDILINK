@@ -14,11 +14,11 @@ L.Icon.Default.mergeOptions({
 });
 
 // Component to dynamically update map center
-function MapUpdater({ center }: { center: [number, number] }) {
+function MapUpdater({ center, zoom }: { center: [number, number], zoom: number }) {
   const map = useMap();
   useEffect(() => {
-    map.flyTo(center, 7); // Use flyTo for smooth transition, zoom level 7 is good for state view
-  }, [center, map]);
+    map.setView(center, zoom);
+  }, [center, zoom, map]);
   return null;
 }
 
@@ -42,6 +42,7 @@ export function NearbyPharmacies() {
   const [filterEmergency, setFilterEmergency] = useState(false);
   const [selectedState, setSelectedState] = useState<string>('Current Location');
   const [maxDistance, setMaxDistance] = useState(50); // Increased distance to find shops in state view
+  const [mapZoom, setMapZoom] = useState(15);
 
   const fallbackLocation: [number, number] = [28.7041, 77.1025]; // New Delhi
 
@@ -49,17 +50,22 @@ export function NearbyPharmacies() {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          setUserLocation([position.coords.latitude, position.coords.longitude]);
-          fetchPharmacies(position.coords.latitude, position.coords.longitude);
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+          setUserLocation([lat, lng]);
+          setMapZoom(15);
+          fetchPharmacies(lat, lng);
         },
-        (error) => {
-          console.error("Geolocation error:", error);
+        () => {
+          alert("Please allow location access to find nearby pharmacies.");
           setUserLocation(fallbackLocation);
+          setMapZoom(13);
           fetchPharmacies(fallbackLocation[0], fallbackLocation[1]);
         }
       );
     } else {
       setUserLocation(fallbackLocation);
+      setMapZoom(13);
       fetchPharmacies(fallbackLocation[0], fallbackLocation[1]);
     }
   };
@@ -104,6 +110,7 @@ export function NearbyPharmacies() {
     if (stateObj && stateObj.coords) {
       setUserLocation(stateObj.coords);
       setMaxDistance(200); // Search wider area when looking at a whole state
+      setMapZoom(7);
       fetchPharmacies(stateObj.coords[0], stateObj.coords[1]);
     } else {
       setMaxDistance(50);
@@ -201,7 +208,7 @@ export function NearbyPharmacies() {
               attribution='&copy; OpenStreetMap contributors'
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
-            <MapUpdater center={userLocation} />
+            <MapUpdater center={userLocation} zoom={mapZoom} />
             
             {/* User Location Marker */}
             <Marker position={userLocation}>

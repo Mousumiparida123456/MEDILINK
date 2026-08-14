@@ -5,6 +5,7 @@ import { About } from './pages/About';
 import { Features } from './pages/Features';
 import { SearchMedicine } from './pages/SearchMedicine';
 import { NearbyPharmacies } from './pages/NearbyPharmacies';
+import { FindMedicineWizard } from './pages/FindMedicineWizard';
 import { Reviews } from './pages/Reviews';
 import { Contact } from './pages/Contact';
 import { Login } from './pages/Login';
@@ -27,6 +28,7 @@ function App() {
           <Route path="about" element={<About />} />
           <Route path="features" element={<Features />} />
           <Route path="search" element={<SearchMedicine />} />
+          <Route path="find" element={<FindMedicineWizard />} />
           <Route path="optimizer" element={<PrescriptionOptimizer />} />
           <Route path="medicine/:id" element={<MedicineDetails />} />
           <Route path="pharmacies" element={<NearbyPharmacies />} />

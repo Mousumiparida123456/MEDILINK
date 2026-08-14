@@ -45,7 +45,6 @@ export function Navbar() {
     { name: 'Optimizer', path: '/optimizer' },
     { name: 'About', path: '/about' },
     { name: 'Features', path: '/features' },
-    { name: 'Nearby', path: '/pharmacies' },
     { name: 'Reviews', path: '/reviews' },
     { name: 'Contact', path: '/contact' },
   ];
@@ -82,11 +81,11 @@ export function Navbar() {
           {/* CTA Buttons */}
           <div className="hidden md:flex items-center space-x-4">
             <Link
-              to="/search"
+              to="/find"
               className="flex items-center gap-2 text-slate-600 hover:text-primary transition-colors font-medium text-sm"
             >
               <Search className="h-4 w-4" />
-              Search Medicine
+              Find Medicine
             </Link>
             
             {isAuthenticated ? (
@@ -206,12 +205,12 @@ export function Navbar() {
           ))}
           <div className="border-t border-slate-100 pt-3 flex flex-col space-y-2">
             <Link
-              to="/search"
+              to="/find"
               className="flex items-center gap-2 px-3 py-2 text-base font-medium text-slate-600 hover:text-primary"
               onClick={() => setIsOpen(false)}
             >
               <Search className="h-4 w-4" />
-              Search Medicine
+              Find Medicine
             </Link>
             
             {isAuthenticated ? (
