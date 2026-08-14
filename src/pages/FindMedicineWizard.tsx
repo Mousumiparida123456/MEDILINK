@@ -102,9 +102,16 @@ export function FindMedicineWizard() {
     try {
       const res = await fetch(`${import.meta.env.VITE_API_URL}/api/pharmacies/nearby?lat=${lat}&lng=${lng}&maxDistance=${maxDist}`);
       const data = await res.json();
-      setPharmacies(data);
+      if (Array.isArray(data)) {
+        setPharmacies(data);
+      } else {
+        console.error("API error:", data);
+        setPharmacies([]);
+        alert(data.error || "Failed to fetch pharmacies. The backend may be having issues.");
+      }
     } catch (err) {
       console.error(err);
+      setPharmacies([]);
     }
   };
 
@@ -140,11 +147,16 @@ export function FindMedicineWizard() {
       const [lat, lng] = userLocation;
       const res = await fetch(`${import.meta.env.VITE_API_URL}/api/medicines/search?q=${query}&lat=${lat}&lng=${lng}&maxDistance=${radius}`);
       const data = await res.json();
-      // Group by medicine
-      const uniqueMeds = Array.from(new Set(data.map((m: any) => m.brandName)))
-        .map(name => data.find((m: any) => m.brandName === name));
       
-      setSearchResults(uniqueMeds);
+      if (Array.isArray(data)) {
+        // Group by medicine
+        const uniqueMeds = Array.from(new Set(data.map((m: any) => m.brandName)))
+          .map(name => data.find((m: any) => m.brandName === name));
+        setSearchResults(uniqueMeds);
+      } else {
+        console.error("API error:", data);
+        setSearchResults([]);
+      }
     } catch (err) {
       console.error(err);
     } finally {
@@ -161,9 +173,14 @@ export function FindMedicineWizard() {
       const [lat, lng] = userLocation || [0,0];
       const res = await fetch(`${import.meta.env.VITE_API_URL}/api/medicines/search?q=${med.brandName}&lat=${lat}&lng=${lng}&maxDistance=${radius}`);
       const data = await res.json();
-      setSearchResults(data); // Reusing searchResults to hold pharmacy inventory data for the selected medicine
+      if (Array.isArray(data)) {
+        setSearchResults(data); // Reusing searchResults to hold pharmacy inventory data for the selected medicine
+      } else {
+        setSearchResults([]);
+      }
     } catch (err) {
       console.error(err);
+      setSearchResults([]);
     }
   };
 

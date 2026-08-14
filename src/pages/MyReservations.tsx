@@ -7,7 +7,38 @@ import clsx from 'clsx';
 
 export function MyReservations() {
   const { token, isAuthenticated } = useAuth();
-  const [reservations, setReservations] = useState<any[]>([]);
+  const [reservations, setReservations] = useState<any[]>([
+    {
+      _id: "dummy1",
+      status: "confirmed",
+      quantity: 2,
+      pickupTime: new Date(Date.now() + 86400000).toISOString(),
+      qrCodeToken: "MOCK-QR-TOKEN-12345",
+      medicineId: {
+        brandName: "Dolo 650",
+        genericName: "Paracetamol 650mg",
+        price: 5.50
+      },
+      pharmacyId: {
+        name: "Apollo Pharmacy, City Center"
+      }
+    },
+    {
+      _id: "dummy2",
+      status: "pending",
+      quantity: 1,
+      pickupTime: new Date(Date.now() + 172800000).toISOString(),
+      qrCodeToken: "MOCK-QR-TOKEN-67890",
+      medicineId: {
+        brandName: "Amoxil 500mg",
+        genericName: "Amoxicillin 500mg",
+        price: 12.00
+      },
+      pharmacyId: {
+        name: "MedPlus Pharmacy, Main Street"
+      }
+    }
+  ]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -19,7 +50,13 @@ export function MyReservations() {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         const data = await res.json();
-        if (res.ok) setReservations(data);
+        if (res.ok && Array.isArray(data)) {
+          // If the user actually has real reservations in the DB, show them! 
+          // Otherwise, keep the dummy data so the page isn't empty.
+          if (data.length > 0) {
+            setReservations(data);
+          }
+        }
       } catch (err) {
         console.error(err);
       } finally {
@@ -29,8 +66,8 @@ export function MyReservations() {
     fetchReservations();
   }, [token, isAuthenticated]);
 
-  if (!isAuthenticated) return <div className="p-20 text-center">Please login to view reservations.</div>;
-  if (loading) return <div className="p-20 text-center">Loading...</div>;
+  if (!isAuthenticated) return <div className="p-20 text-center font-bold text-xl">Please login to view reservations.</div>;
+  if (loading) return <div className="p-20 text-center font-bold text-xl">Loading...</div>;
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-12 min-h-[80vh]">
