@@ -18,7 +18,7 @@ export function EmergencyMode() {
             lng: position.coords.longitude
           });
         },
-        (error) => {
+        () => {
           toast.error("Please enable location services for emergency search");
         }
       );

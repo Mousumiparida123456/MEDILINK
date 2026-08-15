@@ -7,7 +7,6 @@ import { useNavigate } from 'react-router-dom';
 export function PrescriptionScanner() {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [scanning, setScanning] = useState(false);
-  const [extractedText, setExtractedText] = useState('');
   const [detectedMedicines, setDetectedMedicines] = useState<{name: string, checked: boolean}[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
@@ -18,7 +17,6 @@ export function PrescriptionScanner() {
       const reader = new FileReader();
       reader.onload = () => {
         setSelectedImage(reader.result as string);
-        setExtractedText('');
         setDetectedMedicines([]);
       };
       reader.readAsDataURL(file);
@@ -35,7 +33,6 @@ export function PrescriptionScanner() {
       await worker.terminate();
       
       const text = ret.data.text;
-      setExtractedText(text);
       
       // Simple mock logic to "extract" medicine names from raw text
       // In a real scenario, this would use an LLM or NLP against a medicine database
@@ -126,7 +123,7 @@ export function PrescriptionScanner() {
                 <div className="relative w-full max-h-[400px] overflow-hidden rounded-xl border border-slate-200 mb-4">
                   <img src={selectedImage} alt="Prescription" className="w-full h-full object-contain" />
                   <button 
-                    onClick={() => { setSelectedImage(null); setDetectedMedicines([]); setExtractedText(''); }}
+                    onClick={() => { setSelectedImage(null); setDetectedMedicines([]); }}
                     className="absolute top-2 right-2 bg-white/80 p-2 rounded-full hover:bg-white text-rose-600 shadow-sm"
                   >
                     <X className="h-5 w-5" />
