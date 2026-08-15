@@ -1,6 +1,7 @@
-import { Search, Phone, MapPin, Clock, ShieldCheck, Star, ChevronDown, ChevronUp, Pill, HeartPulse, Activity } from 'lucide-react';
+import { Search, Phone, MapPin, Clock, ShieldCheck, Star, ChevronDown, ChevronUp, Pill, HeartPulse, Activity, Scan } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import clsx from 'clsx';
 
 // FAQ Data
@@ -112,17 +113,21 @@ export function Home() {
                 </div>
               </motion.div>
 
-              {/* Emergency Button */}
+              {/* Emergency & Scanner Buttons */}
               <motion.div
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.5, delay: 0.4 }}
-                className="mt-6 flex justify-center lg:justify-start"
+                className="mt-6 flex flex-col sm:flex-row gap-4 justify-center lg:justify-start"
               >
-                <button className="flex items-center gap-2 text-rose-600 bg-rose-50 hover:bg-rose-100 px-4 py-2 rounded-xl font-medium transition-colors border border-rose-200 shadow-sm">
-                  <Phone className="h-4 w-4" />
-                  Emergency Help: Call 911
-                </button>
+                <Link to="/emergency" className="flex items-center justify-center gap-2 text-rose-600 bg-rose-50 hover:bg-rose-100 px-6 py-3 rounded-xl font-bold transition-colors border border-rose-200 shadow-sm">
+                  <Phone className="h-5 w-5" />
+                  Emergency Medicine Mode 🔴
+                </Link>
+                <Link to="/scanner" className="flex items-center justify-center gap-2 text-blue-600 bg-blue-50 hover:bg-blue-100 px-6 py-3 rounded-xl font-bold transition-colors border border-blue-200 shadow-sm">
+                  <Scan className="h-5 w-5" />
+                  Prescription Scanner 📷
+                </Link>
               </motion.div>
 
               {/* Animated Statistics */}

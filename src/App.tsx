@@ -15,6 +15,8 @@ import { MyReservations } from './pages/MyReservations';
 import { PharmacyDashboard } from './pages/PharmacyDashboard';
 import { AdminDashboard } from './pages/AdminDashboard';
 import { PrescriptionOptimizer } from './pages/PrescriptionOptimizer';
+import { EmergencyMode } from './pages/EmergencyMode';
+import { PrescriptionScanner } from './pages/PrescriptionScanner';
 import { AuthProvider } from './context/AuthContext';
 import { Toaster } from 'react-hot-toast';
 
@@ -39,6 +41,8 @@ function App() {
           <Route path="contact" element={<Contact />} />
           <Route path="login" element={<Login />} />
           <Route path="register" element={<Register />} />
+          <Route path="emergency" element={<EmergencyMode />} />
+          <Route path="scanner" element={<PrescriptionScanner />} />
         </Route>
       </Routes>
       </BrowserRouter>

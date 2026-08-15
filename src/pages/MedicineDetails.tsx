@@ -24,6 +24,11 @@ export function MedicineDetails() {
   const [reserving, setReserving] = useState(false);
   const [qrCode, setQrCode] = useState('');
 
+  // Notify Me state
+  const [showNotifyModal, setShowNotifyModal] = useState(false);
+  const [notifyRadius, setNotifyRadius] = useState(5);
+  const [creatingAlert, setCreatingAlert] = useState(false);
+
   // Reviews state
   const [reviews, setReviews] = useState<any[]>([]);
   const [showReviewModal, setShowReviewModal] = useState(false);
@@ -145,6 +150,45 @@ export function MedicineDetails() {
     }
   };
 
+  const handleNotifySubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!isAuthenticated) return navigate('/login');
+    
+    setCreatingAlert(true);
+    try {
+      // Need location for the alert
+      navigator.geolocation.getCurrentPosition(async (position) => {
+        const payload = {
+          medicineId: medicine._id,
+          radius: notifyRadius,
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude
+        };
+
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/alerts`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+          body: JSON.stringify(payload)
+        });
+
+        if (res.ok) {
+          toast.success(`You will be notified when ${medicine.brandName} is available within ${notifyRadius}km.`);
+          setShowNotifyModal(false);
+        } else {
+          toast.error("Failed to set alert");
+        }
+        setCreatingAlert(false);
+      }, () => {
+        toast.error("Please enable location services to set alerts");
+        setCreatingAlert(false);
+      });
+    } catch (err) {
+      console.error(err);
+      toast.error("An error occurred");
+      setCreatingAlert(false);
+    }
+  };
+
   if (loading || !medicine) return <div className="p-20 text-center">Loading...</div>;
 
   return (
@@ -197,7 +241,7 @@ export function MedicineDetails() {
             </div>
           </div>
 
-          <div className="mt-auto">
+          <div className="mt-auto flex flex-col sm:flex-row gap-4">
             <button 
               onClick={() => setShowModal(true)}
               disabled={!medicine.stockAvailability?.inStock}
@@ -205,6 +249,14 @@ export function MedicineDetails() {
             >
               Reserve for Pickup
             </button>
+            {!medicine.stockAvailability?.inStock && (
+              <button 
+                onClick={() => setShowNotifyModal(true)}
+                className="w-full sm:w-auto px-6 py-4 bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-bold text-lg shadow-soft transition-colors"
+              >
+                Notify Me When Available
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -270,12 +322,31 @@ export function MedicineDetails() {
           </div>
 
           <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm mt-6">
-            <h4 className="font-bold text-slate-900 mb-4">Alternatives</h4>
+            <h4 className="font-bold text-slate-900 mb-2">Alternatives</h4>
+            <div className="bg-rose-50 border border-rose-200 rounded-lg p-3 mb-4 flex items-start gap-3">
+              <AlertCircle className="h-5 w-5 text-rose-500 shrink-0 mt-0.5" />
+              <p className="text-xs font-bold text-rose-700">
+                Do not change a prescribed medicine without confirmation from a doctor or pharmacist.
+              </p>
+            </div>
             <div className="space-y-4">
               {alternatives.length > 0 ? alternatives.map(alt => (
-                <div key={alt._id} onClick={() => navigate(`/medicine/${alt._id}`)} className="p-3 bg-slate-50 rounded-xl cursor-pointer hover:bg-slate-100 transition-colors">
-                  <p className="font-bold text-sm text-slate-900">{alt.brandName}</p>
-                  <p className="text-xs text-primary font-medium mt-1">{alt.stockAvailability?.inStock ? 'Available' : 'Out of Stock'} • ${alt.price.toFixed(2)}</p>
+                <div key={alt.id || alt._id} onClick={() => navigate(`/medicine/${alt.id || alt._id}`)} className="p-3 bg-slate-50 rounded-xl cursor-pointer hover:bg-slate-100 transition-colors border border-slate-200">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <p className="font-bold text-sm text-slate-900">{alt.brandName}</p>
+                      <p className="text-xs text-slate-500">{alt.genericName}</p>
+                      <p className="text-xs text-slate-500 mt-1 flex items-center gap-1"><MapPin className="h-3 w-3" /> {alt.pharmacyName} {alt.distance && `(${alt.distance}km)`}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-bold text-primary">${alt.price?.toFixed(2)}</p>
+                      {alt.inStock || alt.stockAvailability?.inStock ? (
+                        <span className="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-[10px] font-bold rounded-full uppercase">In Stock</span>
+                      ) : (
+                        <span className="px-2 py-0.5 bg-rose-100 text-rose-700 text-[10px] font-bold rounded-full uppercase">Out of Stock</span>
+                      )}
+                    </div>
+                  </div>
                 </div>
               )) : (
                 <p className="text-sm text-slate-500">No alternatives found.</p>
@@ -390,6 +461,42 @@ export function MedicineDetails() {
                 
                 <button type="submit" className="w-full py-4 bg-amber-500 text-white font-bold rounded-xl hover:bg-amber-600 transition-colors">
                   Post Review
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Notify Me Modal */}
+      {showNotifyModal && (
+        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl shadow-2xl max-w-sm w-full overflow-hidden">
+            <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+              <h2 className="text-xl font-bold text-slate-900">Availability Alert 🔔</h2>
+              <button onClick={() => setShowNotifyModal(false)} className="text-slate-400 hover:text-slate-600">✕</button>
+            </div>
+            
+            <div className="p-6">
+              <form onSubmit={handleNotifySubmit} className="space-y-6">
+                <p className="text-slate-600 text-sm">
+                  We will notify you when <strong>{medicine.brandName}</strong> becomes available at a pharmacy near you.
+                </p>
+                <div>
+                  <label className="block text-sm font-bold text-slate-700 mb-2">Search Radius (km)</label>
+                  <select 
+                    value={notifyRadius} onChange={e => setNotifyRadius(Number(e.target.value))}
+                    className="w-full border border-slate-200 rounded-xl py-3 px-4 focus:ring-amber-500 focus:border-amber-500"
+                  >
+                    <option value={2}>2 km</option>
+                    <option value={5}>5 km</option>
+                    <option value={10}>10 km</option>
+                    <option value={25}>25 km</option>
+                  </select>
+                </div>
+                
+                <button type="submit" disabled={creatingAlert} className="w-full py-4 bg-amber-500 text-white font-bold rounded-xl hover:bg-amber-600 transition-colors disabled:opacity-70">
+                  {creatingAlert ? 'Setting Alert...' : 'Notify Me When Available'}
                 </button>
               </form>
             </div>
