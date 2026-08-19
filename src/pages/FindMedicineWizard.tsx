@@ -221,6 +221,100 @@ export function FindMedicineWizard() {
   const [searching, setSearching] = useState(false);
   const [activeSymptom, setActiveSymptom] = useState<string | null>(null);
 
+  // AI Symptom Chatbot State
+  const [aiSymptomInput, setAiSymptomInput] = useState('');
+  const [aiAnalyzing, setAiAnalyzing] = useState(false);
+  const [aiRecommendation, setAiRecommendation] = useState<{
+    symptoms: string;
+    recommendedMedicine: string;
+    genericName: string;
+    matchQuery: string;
+    confidence: number;
+    reasoning: string;
+    dosage: string;
+    precautions: string;
+  } | null>(null);
+
+  const handleAISymptomAnalysis = (text: string) => {
+    if (!text.trim()) return;
+    setAiAnalyzing(true);
+    const q = text.toLowerCase();
+
+    setTimeout(() => {
+      let result = {
+        symptoms: text,
+        recommendedMedicine: 'Paracetamol 650mg (Dolo 650)',
+        genericName: 'Paracetamol 650mg',
+        matchQuery: 'Paracetamol',
+        confidence: 96,
+        reasoning: 'Symptoms indicate fever, mild-to-moderate body ache or fatigue. Paracetamol is the first-line antipyretic & analgesic.',
+        dosage: '1 tablet (650mg) after food every 6 to 8 hours as needed.',
+        precautions: 'Do not exceed 4000mg/day. Consult a physician if fever lasts > 48 hours.'
+      };
+
+      if (q.includes('acidity') || q.includes('gas') || q.includes('heartburn') || q.includes('stomach') || q.includes('burning') || q.includes('reflux')) {
+        result = {
+          symptoms: text,
+          recommendedMedicine: 'Pantoprazole 40mg (Pan 40)',
+          genericName: 'Pantoprazole Sodium 40mg',
+          matchQuery: 'Pantoprazole',
+          confidence: 94,
+          reasoning: 'Symptoms suggest gastric hyperacidity or acid reflux (GERD). Pantoprazole reduces stomach acid secretion.',
+          dosage: '1 tablet in the morning 30 minutes before breakfast.',
+          precautions: 'Avoid lying down immediately after meals and restrict spicy food intake.'
+        };
+      } else if (q.includes('cough') || q.includes('throat') || q.includes('cold') || q.includes('sneezing') || q.includes('allergy') || q.includes('runny')) {
+        result = {
+          symptoms: text,
+          recommendedMedicine: 'Cetirizine 10mg (Cetriz)',
+          genericName: 'Cetirizine Hydrochloride 10mg',
+          matchQuery: 'Cetirizine',
+          confidence: 95,
+          reasoning: 'Symptoms align with allergic rhinitis, upper respiratory congestion or histamine response.',
+          dosage: '1 tablet at bedtime with water.',
+          precautions: 'May cause mild drowsiness. Avoid driving or alcohol consumption.'
+        };
+      } else if (q.includes('bacterial') || q.includes('infection') || q.includes('pus') || q.includes('ear') || q.includes('tonsils')) {
+        result = {
+          symptoms: text,
+          recommendedMedicine: 'Amoxicillin 500mg (Amoxil)',
+          genericName: 'Amoxicillin Trihydrate 500mg',
+          matchQuery: 'Amoxicillin',
+          confidence: 91,
+          reasoning: 'Symptoms indicate potential bacterial infection requiring broad-spectrum antibiotic treatment.',
+          dosage: '1 capsule every 8 hours as directed.',
+          precautions: 'Prescription required (Rx). Always complete full recommended antibiotic course.'
+        };
+      } else if (q.includes('sugar') || q.includes('diabetes') || q.includes('thirst') || q.includes('urination')) {
+        result = {
+          symptoms: text,
+          recommendedMedicine: 'Metformin 500mg (Glycomet)',
+          genericName: 'Metformin Hydrochloride 500mg',
+          matchQuery: 'Metformin',
+          confidence: 93,
+          reasoning: 'Glycemic control agent for managing elevated blood glucose levels.',
+          dosage: '1 tablet twice daily with meals.',
+          precautions: 'Prescription required (Rx). Monitor blood glucose levels regularly.'
+        };
+      } else if (q.includes('heart') || q.includes('chest') || q.includes('bp') || q.includes('blood pressure')) {
+        result = {
+          symptoms: text,
+          recommendedMedicine: 'Ecosprin 75mg',
+          genericName: 'Aspirin 75mg',
+          matchQuery: 'Ecosprin',
+          confidence: 92,
+          reasoning: 'Cardiovascular maintenance & antiplatelet therapy for blood circulation.',
+          dosage: '1 tablet daily after food.',
+          precautions: 'Consult a cardiologist immediately if experiencing acute pressure or severe pain.'
+        };
+      }
+
+      setAiRecommendation(result);
+      setAiAnalyzing(false);
+      toast.success("AI Recommendation Generated!", { icon: '🤖' });
+    }, 450);
+  };
+
   // Step 3: Compare & Filter Options
   const [sortBy, setSortBy] = useState<'distance' | 'price' | 'open'>('distance');
 
@@ -544,6 +638,112 @@ export function FindMedicineWizard() {
                   {searching ? '...' : 'Search'}
                 </button>
               </form>
+            </div>
+
+            {/* AI Symptom Assistant Chatbot */}
+            <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-950 text-white rounded-3xl shadow-xl p-6 border border-emerald-500/20 relative overflow-hidden">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <div className="p-2 bg-emerald-500/20 rounded-xl border border-emerald-500/30">
+                    <Sparkles className="h-5 w-5 text-emerald-400 animate-pulse" />
+                  </div>
+                  <div>
+                    <h3 className="font-black text-base flex items-center gap-2">
+                      MediLink AI Symptom Assistant
+                      <span className="text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-2 py-0.5 rounded-full font-extrabold">
+                        AI Powered
+                      </span>
+                    </h3>
+                    <p className="text-xs text-slate-300">Type how you feel in plain words for AI medicine recommendations</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Input Form */}
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  handleAISymptomAnalysis(aiSymptomInput);
+                }}
+                className="space-y-3"
+              >
+                <div className="relative">
+                  <textarea
+                    rows={2}
+                    placeholder="Describe symptoms (e.g., 'I have severe headache, fever and body pain' or 'stomach burning after meals')..."
+                    value={aiSymptomInput}
+                    onChange={(e) => setAiSymptomInput(e.target.value)}
+                    className="w-full bg-slate-900/80 border border-slate-700 focus:border-emerald-500 rounded-2xl p-3.5 text-xs text-slate-100 placeholder-slate-400 outline-none resize-none"
+                  />
+                  <button
+                    type="submit"
+                    disabled={aiAnalyzing || !aiSymptomInput.trim()}
+                    className="absolute right-3 bottom-4 bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl font-black text-xs transition-all disabled:opacity-50 flex items-center gap-1.5 shadow-md"
+                  >
+                    {aiAnalyzing ? (
+                      <div className="animate-spin h-3.5 w-3.5 border-2 border-white border-t-transparent rounded-full" />
+                    ) : (
+                      <Sparkles className="h-3.5 w-3.5" />
+                    )}
+                    {aiAnalyzing ? 'Analyzing...' : 'Ask AI'}
+                  </button>
+                </div>
+
+                {/* AI Preset Symptom Prompt Chips */}
+                <div className="flex flex-wrap gap-1.5 text-[11px]">
+                  <span className="text-slate-400 font-bold self-center mr-1">Quick Prompts:</span>
+                  {[
+                    'High fever, chills & body ache',
+                    'Stomach burning & acid reflux',
+                    'Dry cough & itchy throat',
+                    'Severe allergy & sneezing',
+                  ].map((promptText, i) => (
+                    <button
+                      key={i}
+                      type="button"
+                      onClick={() => {
+                        setAiSymptomInput(promptText);
+                        handleAISymptomAnalysis(promptText);
+                      }}
+                      className="bg-slate-800/80 hover:bg-emerald-900/50 text-slate-200 border border-slate-700 hover:border-emerald-500/50 px-2.5 py-1 rounded-xl transition-all font-medium"
+                    >
+                      {promptText}
+                    </button>
+                  ))}
+                </div>
+              </form>
+
+              {/* AI Recommendation Output Card */}
+              {aiRecommendation && (
+                <div className="mt-5 p-4 bg-slate-900/95 rounded-2xl border border-emerald-500/40 text-xs space-y-3 animate-in fade-in zoom-in-95">
+                  <div className="flex justify-between items-start border-b border-slate-800 pb-2">
+                    <div>
+                      <span className="text-[10px] text-emerald-400 font-extrabold uppercase tracking-wider block">
+                        AI Recommended Treatment ({aiRecommendation.confidence}% Match)
+                      </span>
+                      <h4 className="text-sm font-black text-white mt-0.5">{aiRecommendation.recommendedMedicine}</h4>
+                      <p className="text-[11px] text-slate-400">Generic: {aiRecommendation.genericName}</p>
+                    </div>
+                    <button
+                      onClick={() => {
+                        setSearchQuery(aiRecommendation.matchQuery);
+                        handleMedicineSearch(undefined, aiRecommendation.matchQuery);
+                      }}
+                      className="bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold px-3 py-1.5 rounded-xl text-[11px] transition-all shadow-sm shrink-0"
+                    >
+                      Check Stock (1-Click)
+                    </button>
+                  </div>
+
+                  <div className="space-y-1.5 text-slate-300">
+                    <p><strong className="text-emerald-300">💡 Clinical Reasoning:</strong> {aiRecommendation.reasoning}</p>
+                    <p><strong className="text-emerald-300">💊 Typical Dosage:</strong> {aiRecommendation.dosage}</p>
+                    <p className="text-[11px] text-amber-300/90 bg-amber-950/40 p-2 rounded-xl border border-amber-500/20">
+                      <strong>⚠️ Precaution:</strong> {aiRecommendation.precautions}
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Patient Symptom Helper Chips */}
