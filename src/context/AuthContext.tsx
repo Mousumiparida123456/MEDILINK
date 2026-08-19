@@ -1,12 +1,13 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 
-type UserRole = 'user' | 'pharmacy' | 'admin';
+export type UserRole = 'user' | 'pharmacy' | 'admin';
 
-interface User {
+export interface User {
   id: string;
   name: string;
   email: string;
   role: UserRole;
+  phone?: string;
 }
 
 interface AuthContextType {
@@ -19,6 +20,30 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+export const DEMO_USERS: Record<UserRole, User> = {
+  user: {
+    id: 'demo_user_1',
+    name: 'Demo Patient (Om)',
+    email: 'patient@medilink.com',
+    role: 'user',
+    phone: '+1 (555) 019-2834',
+  },
+  pharmacy: {
+    id: 'demo_pharmacy_1',
+    name: 'City Central Pharmacy',
+    email: 'pharmacy@medilink.com',
+    role: 'pharmacy',
+    phone: '+1 (555) 890-1234',
+  },
+  admin: {
+    id: 'demo_admin_1',
+    name: 'System Administrator',
+    email: 'admin@medilink.com',
+    role: 'admin',
+    phone: '+1 (555) 999-0000',
+  },
+};
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
@@ -28,8 +53,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const storedUser = localStorage.getItem('user');
 
     if (storedToken && storedUser) {
-      setToken(storedToken);
-      setUser(JSON.parse(storedUser));
+      try {
+        setToken(storedToken);
+        setUser(JSON.parse(storedUser));
+      } catch {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+      }
     }
   }, []);
 
@@ -61,3 +91,4 @@ export const useAuth = () => {
   }
   return context;
 };
+
