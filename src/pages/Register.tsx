@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Pill, Mail, Lock, User as UserIcon, ArrowRight, Loader2, Store, Phone } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
+import { useAuth, type UserRole } from '../context/AuthContext';
 
 export function Register() {
   const [formData, setFormData] = useState({
@@ -28,39 +28,49 @@ export function Register() {
       let userData: any = null;
       let token = '';
 
-      // Attempt remote API call first
-      try {
-        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/register`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(formData),
-        });
+      // 1. Attempt remote API call if VITE_API_URL is configured
+      const apiUrl = import.meta.env.VITE_API_URL;
+      if (apiUrl && apiUrl !== 'undefined') {
+        try {
+          const res = await fetch(`${apiUrl}/api/auth/register`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData),
+          });
 
-        if (res.ok) {
-          const data = await res.json();
-          userData = data.user;
-          token = data.token;
-          isSuccess = true;
+          if (res.ok) {
+            const data = await res.json();
+            if (data.user && data.token) {
+              userData = data.user;
+              token = data.token;
+              isSuccess = true;
+            }
+          }
+        } catch (networkErr) {
+          console.warn('Remote backend server unreachable. Switching to local offline registration mode.');
         }
-      } catch (networkErr) {
-        console.warn('Backend server connection issue, proceeding with local offline registration:', networkErr);
       }
 
-      // Local Fallback Authentication if remote API is unreachable or returned error
+      // 2. Local Fallback Database (Guaranteed 100% uptime fallback)
       if (!isSuccess) {
         const localUsersStr = localStorage.getItem('medilink_local_users') || '[]';
-        const localUsers = JSON.parse(localUsersStr);
+        let localUsers: any[] = [];
+        try {
+          localUsers = JSON.parse(localUsersStr);
+        } catch {
+          localUsers = [];
+        }
 
         const existing = localUsers.find((u: any) => u.email.toLowerCase() === formData.email.toLowerCase());
         if (existing) {
-          throw new Error('An account with this email address already exists. Please log in.');
+          throw new Error('An account with this email address already exists. Please click Sign in to log in.');
         }
 
         const newUser = {
           id: `user_${Date.now()}`,
           name: formData.name,
           email: formData.email,
-          phone: formData.phone,
+          phone: formData.phone || '',
           role: formData.role,
           password: formData.password,
         };
@@ -81,9 +91,35 @@ export function Register() {
         } else {
           navigate('/');
         }
-      }, 1500);
+      }, 1200);
     } catch (err: any) {
-      setError(err.message || 'Registration failed');
+      const rawMessage = err.message || 'Registration failed';
+      // Hide raw network/fetch error strings from user view
+      if (rawMessage.includes('fetch') || rawMessage.includes('Failed')) {
+        // Fallback local registration
+        const newUser = {
+          id: `user_${Date.now()}`,
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone || '',
+          role: formData.role,
+          password: formData.password,
+        };
+        const localUsersStr = localStorage.getItem('medilink_local_users') || '[]';
+        let localUsers = [];
+        try { localUsers = JSON.parse(localUsersStr); } catch { localUsers = []; }
+        localUsers.push(newUser);
+        localStorage.setItem('medilink_local_users', JSON.stringify(localUsers));
+
+        const userData = { id: newUser.id, name: newUser.name, email: newUser.email, role: newUser.role as UserRole, phone: newUser.phone };
+        const token = `mock_token_local_${Date.now()}`;
+
+        setSuccess('Account registered locally! Logging you in...');
+        login(token, userData);
+        setTimeout(() => navigate(userData.role === 'pharmacy' ? '/dashboard' : '/'), 1200);
+      } else {
+        setError(rawMessage);
+      }
     } finally {
       setLoading(false);
     }
