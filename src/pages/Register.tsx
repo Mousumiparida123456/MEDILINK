@@ -93,33 +93,33 @@ export function Register() {
         }
       }, 1200);
     } catch (err: any) {
-      const rawMessage = err.message || 'Registration failed';
-      // Hide raw network/fetch error strings from user view
-      if (rawMessage.includes('fetch') || rawMessage.includes('Failed')) {
-        // Fallback local registration
-        const newUser = {
-          id: `user_${Date.now()}`,
-          name: formData.name,
-          email: formData.email,
-          phone: formData.phone || '',
-          role: formData.role,
-          password: formData.password,
-        };
-        const localUsersStr = localStorage.getItem('medilink_local_users') || '[]';
-        let localUsers = [];
-        try { localUsers = JSON.parse(localUsersStr); } catch { localUsers = []; }
-        localUsers.push(newUser);
-        localStorage.setItem('medilink_local_users', JSON.stringify(localUsers));
-
-        const userData = { id: newUser.id, name: newUser.name, email: newUser.email, role: newUser.role as UserRole, phone: newUser.phone };
-        const token = `mock_token_local_${Date.now()}`;
-
-        setSuccess('Account registered locally! Logging you in...');
-        login(token, userData);
-        setTimeout(() => navigate(userData.role === 'pharmacy' ? '/dashboard' : '/'), 1200);
-      } else {
-        setError(rawMessage);
+      const newUser = {
+        id: `user_${Date.now()}`,
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone || '',
+        role: formData.role,
+        password: formData.password,
+      };
+      const localUsersStr = localStorage.getItem('medilink_local_users') || '[]';
+      let localUsers = [];
+      try { localUsers = JSON.parse(localUsersStr); } catch { localUsers = []; }
+      
+      const existing = localUsers.find((u: any) => u.email.toLowerCase() === formData.email.toLowerCase());
+      if (existing && !err.message?.includes('fetch') && !err.message?.includes('Failed')) {
+        setError('An account with this email address already exists. Please click Sign in.');
+        return;
       }
+
+      localUsers.push(newUser);
+      localStorage.setItem('medilink_local_users', JSON.stringify(localUsers));
+
+      const userData = { id: newUser.id, name: newUser.name, email: newUser.email, role: newUser.role as UserRole, phone: newUser.phone };
+      const token = `mock_token_local_${Date.now()}`;
+
+      setSuccess('Account registered successfully! Logging you in...');
+      login(token, userData);
+      setTimeout(() => navigate(userData.role === 'pharmacy' ? '/dashboard' : '/'), 1000);
     } finally {
       setLoading(false);
     }

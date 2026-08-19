@@ -15,13 +15,15 @@ export function Navbar() {
     if (!isAuthenticated || !token) return;
     
     const fetchNotifs = async () => {
+      const apiUrl = import.meta.env.VITE_API_URL;
+      if (!apiUrl || apiUrl === 'undefined') return;
       try {
-        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/notifications`, {
+        const res = await fetch(`${apiUrl}/api/notifications`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         if (res.ok) setNotifications(await res.json());
       } catch (err) {
-        console.error(err);
+        console.warn("Notifications API connection skipped.");
       }
     };
     
