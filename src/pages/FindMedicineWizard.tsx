@@ -726,12 +726,18 @@ export function FindMedicineWizard() {
                     </div>
                     <button
                       onClick={() => {
-                        setSearchQuery(aiRecommendation.matchQuery);
-                        handleMedicineSearch(undefined, aiRecommendation.matchQuery);
+                        const q = aiRecommendation.matchQuery;
+                        setSearchQuery(q);
+                        const qLower = q.toLowerCase();
+                        const matchingMed = MASTER_MEDICINE_DATABASE.find(
+                          (m) => m.genericName.toLowerCase().includes(qLower) || m.brandName.toLowerCase().includes(qLower)
+                        ) || MASTER_MEDICINE_DATABASE[0];
+                        selectMedicineForComparison(matchingMed);
+                        toast.success(`Comparing stock for ${matchingMed.brandName}`);
                       }}
-                      className="bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold px-3 py-1.5 rounded-xl text-[11px] transition-all shadow-sm shrink-0"
+                      className="bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold px-3.5 py-2 rounded-xl text-xs transition-all shadow-md shrink-0 flex items-center gap-1 cursor-pointer"
                     >
-                      Check Stock (1-Click)
+                      Check Stock & Reserve (1-Click) <ArrowRight className="h-3.5 w-3.5" />
                     </button>
                   </div>
 
