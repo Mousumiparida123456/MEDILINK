@@ -1,3 +1,4 @@
+// MediLink Fail-Safe Offline Login Page
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth, DEMO_USERS, type UserRole } from '../context/AuthContext';
