@@ -74,17 +74,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (storedToken && storedUser) {
       try {
         const parsedUser = JSON.parse(storedUser);
-        if (parsedUser && parsedUser.id && parsedUser.role) {
+        if (storedToken.length > 5 && parsedUser && parsedUser.id && parsedUser.role && parsedUser.email) {
           setToken(storedToken);
           setUser(parsedUser);
         } else {
           localStorage.removeItem('token');
           localStorage.removeItem('user');
+          localStorage.removeItem('medilink_session');
         }
       } catch {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
+        localStorage.removeItem('medilink_session');
       }
+    } else {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
     }
   }, []);
 
@@ -100,6 +105,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    localStorage.removeItem('medilink_session');
+    sessionStorage.clear();
   };
 
   return (
