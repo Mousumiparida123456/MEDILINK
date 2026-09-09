@@ -23,18 +23,7 @@ import { AuthProvider } from './context/AuthContext';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import { Toaster } from 'react-hot-toast';
 
-import { useAuth } from './context/AuthContext';
 
-function RootRedirect() {
-  const { isAuthenticated, user } = useAuth();
-  if (!isAuthenticated || !user) {
-    return <Navigate to="/login" replace />;
-  }
-  if (user.role === 'manager' || user.role === 'admin' || user.role === 'pharmacy') {
-    return <Navigate to="/manager/dashboard" replace />;
-  }
-  return <Navigate to="/user/dashboard" replace />;
-}
 
 function App() {
   return (
@@ -42,8 +31,8 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Layout />}>
-            {/* Initial Route: Redirect unauthenticated to Login, authenticated to Dashboard */}
-            <Route index element={<RootRedirect />} />
+            {/* Public Landing & Content Routes */}
+            <Route index element={<Home />} />
             <Route path="home" element={<Home />} />
             <Route path="about" element={<About />} />
             <Route path="features" element={<Features />} />
