@@ -68,8 +68,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(null);
 
   useEffect(() => {
-    const storedToken = localStorage.getItem('token');
-    const storedUser = localStorage.getItem('user');
+    // Clear old persistent localStorage sessions so every fresh visit forces the Login page first
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    localStorage.removeItem('medilink_session');
+
+    // Restore session ONLY from current active tab (sessionStorage) if present
+    const storedToken = sessionStorage.getItem('token');
+    const storedUser = sessionStorage.getItem('user');
 
     if (storedToken && storedUser) {
       try {
@@ -78,34 +84,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setToken(storedToken);
           setUser(parsedUser);
         } else {
-          localStorage.removeItem('token');
-          localStorage.removeItem('user');
-          localStorage.removeItem('medilink_session');
+          sessionStorage.clear();
         }
       } catch {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        localStorage.removeItem('medilink_session');
+        sessionStorage.clear();
       }
     } else {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
+      sessionStorage.clear();
     }
   }, []);
 
   const login = (newToken: string, newUser: User) => {
     setToken(newToken);
     setUser(newUser);
-    localStorage.setItem('token', newToken);
-    localStorage.setItem('user', JSON.stringify(newUser));
+    sessionStorage.setItem('token', newToken);
+    sessionStorage.setItem('user', JSON.stringify(newUser));
   };
 
   const logout = () => {
     setToken(null);
     setUser(null);
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    localStorage.removeItem('medilink_session');
+    localStorage.clear();
     sessionStorage.clear();
   };
 
