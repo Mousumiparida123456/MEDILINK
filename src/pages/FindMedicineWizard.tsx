@@ -41,28 +41,53 @@ interface MedicineItem {
 
 // Symptom & Health Condition Helper Chips for Patients
 const SYMPTOM_CATEGORIES = [
-  { id: 'fever', title: 'Fever & Body Pain', icon: '🌡️', query: 'Paracetamol', tags: ['fever', 'headache', 'body ache', 'dolo'] },
-  { id: 'cold', title: 'Cold, Cough & Allergy', icon: '🩺', query: 'Cetirizine', tags: ['sneezing', 'runny nose', 'cough', 'allergy'] },
-  { id: 'acidity', title: 'Acidity, Gas & Digestion', icon: '💊', query: 'Pantoprazole', tags: ['heartburn', 'gas', 'indigestion', 'pan 40'] },
-  { id: 'infection', title: 'Infections & Antibiotics', icon: '🧫', query: 'Amoxicillin', tags: ['bacterial', 'throat infection', 'fever', 'azee'] },
-  { id: 'diabetes_bp', title: 'Diabetes & Blood Pressure', icon: '🩸', query: 'Metformin', tags: ['sugar', 'bp', 'glycomet', 'telmisartan'] },
-  { id: 'cardiac', title: 'Heart & Blood Thinners', icon: '🫀', query: 'Ecosprin', tags: ['heart', 'chest discomfort', 'blood thinner'] }
-];
-
-// Popular Essential Medicines Quick Grid
-const POPULAR_MEDICINES = [
-  { name: 'Dolo 650', generic: 'Paracetamol 650mg', category: 'Fever & Pain Relief', estPrice: 32 },
-  { name: 'Amoxil 500mg', generic: 'Amoxicillin 500mg', category: 'Antibiotic', estPrice: 65 },
-  { name: 'Pan 40', generic: 'Pantoprazole 40mg', category: 'Acidity & Reflux', estPrice: 48 },
-  { name: 'Cetriz 10mg', generic: 'Cetirizine Hydrochloride', category: 'Allergy & Cold', estPrice: 22 },
-  { name: 'Azee 500', generic: 'Azithromycin 500mg', category: 'Bacterial Antibiotic', estPrice: 110 },
-  { name: 'Glycomet 500mg', generic: 'Metformin Hydrochloride', category: 'Diabetes Management', estPrice: 38 },
-  { name: 'Ecosprin 75mg', generic: 'Aspirin 75mg', category: 'Heart / Blood Thinner', estPrice: 15 },
-  { name: 'Digene Gel 200ml', generic: 'Antacid & Antiflatulent', category: 'Acidity Relief', estPrice: 145 },
+  { 
+    id: 'fever', 
+    title: 'Fever & Body Pain', 
+    icon: '🌡️', 
+    query: 'Paracetamol', 
+    keywords: ['fever', 'pain', 'paracetamol', 'dolo', 'crocin', 'combiflam', 'ibuprofen', 'headache', 'body ache'] 
+  },
+  { 
+    id: 'cold', 
+    title: 'Cold, Cough & Allergy', 
+    icon: '🩺', 
+    query: 'Cetirizine', 
+    keywords: ['cold', 'cough', 'allergy', 'cetirizine', 'cetriz', 'allegra', 'fexofenadine', 'benadryl', 'ascoril', 'sneezing', 'runny nose'] 
+  },
+  { 
+    id: 'acidity', 
+    title: 'Acidity, Gas & Digestion', 
+    icon: '💊', 
+    query: 'Pantoprazole', 
+    keywords: ['acidity', 'gas', 'digestion', 'pantoprazole', 'pan 40', 'digene', 'omez', 'omeprazole', 'rantac', 'famotidine', 'heartburn', 'reflux'] 
+  },
+  { 
+    id: 'infection', 
+    title: 'Infections & Antibiotics', 
+    icon: '🧫', 
+    query: 'Amoxicillin', 
+    keywords: ['antibiotic', 'infection', 'amoxicillin', 'amoxil', 'azee', 'azithromycin', 'augmentin', 'taxim', 'bacterial', 'throat'] 
+  },
+  { 
+    id: 'diabetes_bp', 
+    title: 'Diabetes & Blood Pressure', 
+    icon: '🩸', 
+    query: 'Metformin', 
+    keywords: ['diabetes', 'bp', 'blood pressure', 'metformin', 'glycomet', 'janumet', 'telma', 'telmisartan', 'amcard', 'amlodipine', 'sugar'] 
+  },
+  { 
+    id: 'cardiac', 
+    title: 'Heart & Blood Thinners', 
+    icon: '🫀', 
+    query: 'Ecosprin', 
+    keywords: ['heart', 'blood thinner', 'ecosprin', 'aspirin', 'clavix', 'clopidogrel', 'atorva', 'atorvastatin', 'rosuvas', 'chest'] 
+  }
 ];
 
 // Fallback Master Medicine Inventory Database
 const MASTER_MEDICINE_DATABASE: MedicineItem[] = [
+  // FEVER & BODY PAIN
   {
     id: 'med_1',
     brandName: 'Dolo 650 Tablet',
@@ -98,22 +123,41 @@ const MASTER_MEDICINE_DATABASE: MedicineItem[] = [
     pharmacy: { isOpen: true, isEmergency: false, address: 'Near Care Hospital, Chandrasekharpur' }
   },
   {
-    id: 'med_3',
-    brandName: 'Amoxil 500mg Capsule',
-    genericName: 'Amoxicillin 500mg',
-    composition: 'Amoxicillin Trihydrate (500mg)',
-    dosageForm: 'Capsule (Strip of 10)',
-    prescriptionRequired: true,
-    category: 'Antibiotic',
-    price: 68.00,
-    genericPrice: 35.00,
+    id: 'med_2_alt',
+    brandName: 'Crocin Advance 500mg',
+    genericName: 'Paracetamol 500mg Fast Release',
+    composition: 'Paracetamol (500mg)',
+    dosageForm: 'Tablet (Strip of 15)',
+    prescriptionRequired: false,
+    category: 'Fever & Pain',
+    price: 28.00,
+    genericPrice: 15.00,
     inStock: true,
-    stockQuantity: 24,
+    stockQuantity: 65,
+    pharmacyId: 'p3',
+    pharmacyName: 'MedPlus Chemist, Patia Main Road',
+    distance: 1.5,
+    pharmacy: { isOpen: true, isEmergency: true, address: 'Opposite Maruti Showroom, Patia' }
+  },
+  {
+    id: 'med_2_comb',
+    brandName: 'Combiflam Tablet',
+    genericName: 'Ibuprofen + Paracetamol',
+    composition: 'Ibuprofen (400mg) + Paracetamol (325mg)',
+    dosageForm: 'Tablet (Strip of 20)',
+    prescriptionRequired: false,
+    category: 'Fever & Pain',
+    price: 45.00,
+    genericPrice: 22.00,
+    inStock: true,
+    stockQuantity: 50,
     pharmacyId: 'p1',
     pharmacyName: 'Apollo Pharmacy, KIIT Square',
     distance: 0.8,
     pharmacy: { isOpen: true, isEmergency: true, address: 'Plot 12, KIIT Square, Patia' }
   },
+
+  // ACIDITY & DIGESTION
   {
     id: 'med_4',
     brandName: 'Pan 40 Tablet',
@@ -132,6 +176,42 @@ const MASTER_MEDICINE_DATABASE: MedicineItem[] = [
     pharmacy: { isOpen: true, isEmergency: true, address: 'Opposite Maruti Showroom, Patia' }
   },
   {
+    id: 'med_4_digene',
+    brandName: 'Digene Antacid Gel 200ml',
+    genericName: 'Aluminium Hydroxide + Magnesium Hydroxide + Simethicone',
+    composition: 'Antacid & Antiflatulent Syrup',
+    dosageForm: 'Bottle (200ml)',
+    prescriptionRequired: false,
+    category: 'Acidity',
+    price: 145.00,
+    genericPrice: 85.00,
+    inStock: true,
+    stockQuantity: 40,
+    pharmacyId: 'p1',
+    pharmacyName: 'Apollo Pharmacy, KIIT Square',
+    distance: 0.8,
+    pharmacy: { isOpen: true, isEmergency: true, address: 'Plot 12, KIIT Square, Patia' }
+  },
+  {
+    id: 'med_4_omez',
+    brandName: 'Omez 20mg Capsule',
+    genericName: 'Omeprazole 20mg',
+    composition: 'Omeprazole (20mg)',
+    dosageForm: 'Capsule (Strip of 20)',
+    prescriptionRequired: false,
+    category: 'Acidity',
+    price: 62.00,
+    genericPrice: 30.00,
+    inStock: true,
+    stockQuantity: 75,
+    pharmacyId: 'p2',
+    pharmacyName: 'Jan Aushadhi Generic Store',
+    distance: 1.2,
+    pharmacy: { isOpen: true, isEmergency: false, address: 'Near Care Hospital, Chandrasekharpur' }
+  },
+
+  // COLD, COUGH & ALLERGY
+  {
     id: 'med_5',
     brandName: 'Cetriz 10mg Tablet',
     genericName: 'Cetirizine Hydrochloride 10mg',
@@ -143,6 +223,59 @@ const MASTER_MEDICINE_DATABASE: MedicineItem[] = [
     genericPrice: 12.00,
     inStock: true,
     stockQuantity: 110,
+    pharmacyId: 'p1',
+    pharmacyName: 'Apollo Pharmacy, KIIT Square',
+    distance: 0.8,
+    pharmacy: { isOpen: true, isEmergency: true, address: 'Plot 12, KIIT Square, Patia' }
+  },
+  {
+    id: 'med_5_allegra',
+    brandName: 'Allegra 120mg Tablet',
+    genericName: 'Fexofenadine Hydrochloride 120mg',
+    composition: 'Fexofenadine (120mg)',
+    dosageForm: 'Tablet (Strip of 10)',
+    prescriptionRequired: false,
+    category: 'Allergy',
+    price: 135.00,
+    genericPrice: 70.00,
+    inStock: true,
+    stockQuantity: 35,
+    pharmacyId: 'p3',
+    pharmacyName: 'MedPlus Chemist, Patia Main Road',
+    distance: 1.5,
+    pharmacy: { isOpen: true, isEmergency: true, address: 'Opposite Maruti Showroom, Patia' }
+  },
+  {
+    id: 'med_5_benadryl',
+    brandName: 'Benadryl Cough Syrup 100ml',
+    genericName: 'Diphenhydramine + Ammonium Chloride',
+    composition: 'Cough Suppressant & Mucolytic',
+    dosageForm: 'Syrup (100ml)',
+    prescriptionRequired: false,
+    category: 'Cold & Cough',
+    price: 115.00,
+    genericPrice: 60.00,
+    inStock: true,
+    stockQuantity: 50,
+    pharmacyId: 'p4',
+    pharmacyName: 'KIMS Hospital Pharmacy 24x7',
+    distance: 1.1,
+    pharmacy: { isOpen: true, isEmergency: true, address: 'KIMS Campus, Patia' }
+  },
+
+  // INFECTIONS & ANTIBIOTICS
+  {
+    id: 'med_3',
+    brandName: 'Amoxil 500mg Capsule',
+    genericName: 'Amoxicillin 500mg',
+    composition: 'Amoxicillin Trihydrate (500mg)',
+    dosageForm: 'Capsule (Strip of 10)',
+    prescriptionRequired: true,
+    category: 'Antibiotic',
+    price: 68.00,
+    genericPrice: 35.00,
+    inStock: true,
+    stockQuantity: 24,
     pharmacyId: 'p1',
     pharmacyName: 'Apollo Pharmacy, KIIT Square',
     distance: 0.8,
@@ -166,6 +299,25 @@ const MASTER_MEDICINE_DATABASE: MedicineItem[] = [
     pharmacy: { isOpen: true, isEmergency: true, address: 'KIMS Campus, Patia' }
   },
   {
+    id: 'med_6_aug',
+    brandName: 'Augmentin 625 Duo Tablet',
+    genericName: 'Amoxicillin + Clavulanic Acid',
+    composition: 'Amoxicillin (500mg) + Clavulanic Acid (125mg)',
+    dosageForm: 'Tablet (Strip of 10)',
+    prescriptionRequired: true,
+    category: 'Antibiotic',
+    price: 205.00,
+    genericPrice: 110.00,
+    inStock: true,
+    stockQuantity: 40,
+    pharmacyId: 'p1',
+    pharmacyName: 'Apollo Pharmacy, KIIT Square',
+    distance: 0.8,
+    pharmacy: { isOpen: true, isEmergency: true, address: 'Plot 12, KIIT Square, Patia' }
+  },
+
+  // DIABETES & BLOOD PRESSURE
+  {
     id: 'med_7',
     brandName: 'Glycomet 500mg Tablet',
     genericName: 'Metformin 500mg',
@@ -183,6 +335,25 @@ const MASTER_MEDICINE_DATABASE: MedicineItem[] = [
     pharmacy: { isOpen: true, isEmergency: true, address: 'Opposite Maruti Showroom, Patia' }
   },
   {
+    id: 'med_7_telma',
+    brandName: 'Telma 40mg Tablet',
+    genericName: 'Telmisartan 40mg',
+    composition: 'Telmisartan (40mg)',
+    dosageForm: 'Tablet (Strip of 15)',
+    prescriptionRequired: true,
+    category: 'Blood Pressure',
+    price: 98.00,
+    genericPrice: 45.00,
+    inStock: true,
+    stockQuantity: 80,
+    pharmacyId: 'p1',
+    pharmacyName: 'Apollo Pharmacy, KIIT Square',
+    distance: 0.8,
+    pharmacy: { isOpen: true, isEmergency: true, address: 'Plot 12, KIIT Square, Patia' }
+  },
+
+  // HEART & BLOOD THINNERS
+  {
     id: 'med_8',
     brandName: 'Ecosprin 75mg Tablet',
     genericName: 'Aspirin 75mg',
@@ -198,6 +369,23 @@ const MASTER_MEDICINE_DATABASE: MedicineItem[] = [
     pharmacyName: 'Apollo Pharmacy, KIIT Square',
     distance: 0.8,
     pharmacy: { isOpen: true, isEmergency: true, address: 'Plot 12, KIIT Square, Patia' }
+  },
+  {
+    id: 'med_8_clavix',
+    brandName: 'Clavix 75mg Tablet',
+    genericName: 'Clopidogrel 75mg',
+    composition: 'Clopidogrel Bisulfate (75mg)',
+    dosageForm: 'Tablet (Strip of 15)',
+    prescriptionRequired: true,
+    category: 'Heart & Blood Thinner',
+    price: 110.00,
+    genericPrice: 55.00,
+    inStock: true,
+    stockQuantity: 45,
+    pharmacyId: 'p4',
+    pharmacyName: 'KIMS Hospital Pharmacy 24x7',
+    distance: 1.1,
+    pharmacy: { isOpen: true, isEmergency: true, address: 'KIMS Campus, Patia' }
   }
 ];
 
@@ -459,8 +647,16 @@ export function FindMedicineWizard() {
 
   const handleSymptomClick = (symptom: typeof SYMPTOM_CATEGORIES[0]) => {
     setActiveSymptom(symptom.id);
-    setSearchQuery(symptom.query);
-    handleMedicineSearch(undefined, symptom.query);
+    setSearchQuery(symptom.title);
+    
+    // Filter master database for all medicines matching this symptom's keywords
+    const matching = MASTER_MEDICINE_DATABASE.filter((m) => {
+      const text = `${m.brandName} ${m.genericName} ${m.composition} ${m.category}`.toLowerCase();
+      return symptom.keywords.some((kw) => text.includes(kw.toLowerCase()));
+    });
+
+    setSearchResults(matching.length > 0 ? matching : MASTER_MEDICINE_DATABASE);
+    toast.success(`Showing medicines for ${symptom.title}`, { icon: '💊' });
   };
 
   const selectMedicineForComparison = (med: MedicineItem) => {
@@ -780,38 +976,6 @@ export function FindMedicineWizard() {
                       </p>
                     </div>
                   </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Popular Essential Medicines Grid */}
-            <div className="bg-white rounded-3xl shadow-soft border border-slate-100 p-6">
-              <h3 className="text-sm font-black uppercase tracking-wider text-slate-900 mb-3 flex items-center gap-2">
-                <ShieldCheck className="h-4 w-4 text-emerald-600" /> Popular Essential Medicines
-              </h3>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {POPULAR_MEDICINES.map((pop, idx) => (
-                  <div
-                    key={idx}
-                    onClick={() => {
-                      setSearchQuery(pop.name);
-                      handleMedicineSearch(undefined, pop.name);
-                    }}
-                    className="p-3.5 border border-slate-200 hover:border-emerald-500 rounded-2xl cursor-pointer bg-slate-50/50 hover:bg-emerald-50/40 transition-all flex justify-between items-center group"
-                  >
-                    <div>
-                      <h4 className="font-extrabold text-sm text-slate-900 group-hover:text-emerald-700">{pop.name}</h4>
-                      <p className="text-xs text-slate-500">{pop.generic}</p>
-                      <span className="inline-block text-[10px] font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-md mt-1">
-                        {pop.category}
-                      </span>
-                    </div>
-                    <div className="text-right shrink-0">
-                      <span className="font-extrabold text-sm text-emerald-700">₹{pop.estPrice}</span>
-                      <ArrowRight className="h-4 w-4 text-slate-300 group-hover:text-emerald-600 mt-1 ml-auto transition-colors" />
-                    </div>
-                  </div>
                 ))}
               </div>
             </div>
