@@ -102,7 +102,7 @@ export function ManagerDashboard() {
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-2xl sm:text-3xl font-extrabold">MediLink Manager Console</h1>
+                <h1 className="text-2xl sm:text-3xl font-extrabold">Rx Find Manager Console</h1>
                 <span className="px-2.5 py-0.5 bg-blue-500/20 text-blue-300 border border-blue-400/30 text-xs font-bold rounded-full uppercase">
                   Admin Control Panel
                 </span>
@@ -480,7 +480,7 @@ export function ManagerDashboard() {
                   </div>
                   <div>
                     <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Admin Email</label>
-                    <input type="email" readOnly value={user?.email || 'manager@medilink.com'} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-semibold text-slate-800" />
+                    <input type="email" readOnly value={user?.email || 'manager@rxfind.com'} className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-semibold text-slate-800" />
                   </div>
                   <div>
                     <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Access Level</label>

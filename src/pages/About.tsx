@@ -9,7 +9,7 @@ export function About() {
             Revolutionizing <span className="text-primary">Healthcare Access</span>
           </h1>
           <p className="text-lg text-slate-600 mb-8 leading-relaxed">
-            MediLink was created with a simple mission: to make healthcare accessible by helping people find their essential medicines quickly and locally. We partner with local pharmacies to provide real-time inventory tracking, ensuring that you never have to visit multiple stores just to find out a medication is out of stock.
+            Rx Find was created with a simple mission: to make healthcare accessible by helping people find their essential medicines quickly and locally. We partner with local pharmacies to provide real-time inventory tracking, ensuring that you never have to visit multiple stores just to find out a medication is out of stock.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 mb-8">
             <div className="bg-emerald-50 p-6 rounded-2xl border border-emerald-100 flex-1">

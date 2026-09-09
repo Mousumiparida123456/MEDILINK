@@ -62,7 +62,7 @@ export function Navbar() {
                 <Pill className="h-6 w-6" />
               </div>
               <span className="font-bold text-2xl tracking-tight text-slate-900">
-                Medi<span className="text-primary">Link</span>
+                Rx <span className="text-primary">Find</span>
               </span>
             </Link>
           </div>

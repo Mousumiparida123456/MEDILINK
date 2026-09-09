@@ -165,14 +165,14 @@ export function Login() {
               <Pill className="h-7 w-7" />
             </div>
             <span className="font-extrabold text-3xl tracking-tight text-slate-900">
-              Medi<span className="text-primary">Link</span>
+              Rx <span className="text-primary">Find</span>
             </span>
           </Link>
           <h2 className="text-2xl font-extrabold text-slate-900 mt-2">Sign in to your account</h2>
           <p className="mt-1.5 text-sm text-slate-600">
             Or{' '}
             <Link to="/register" className="font-semibold text-primary hover:text-primary-dark transition-colors">
-              create a new Medilink account
+              create a new Rx Find account
             </Link>
           </p>
         </div>

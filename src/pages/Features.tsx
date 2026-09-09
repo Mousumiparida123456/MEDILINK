@@ -9,7 +9,7 @@ export function Features() {
     { icon: <Bell className="h-6 w-6" />, title: "Real-time Alerts", desc: "Get notified immediately when your reserved medicines are confirmed or back in stock.", path: "/reservations" },
     { icon: <Store className="h-6 w-6" />, title: "Pharmacy Dashboard", desc: "A powerful portal for pharmacies to manage stock, analyze trends, and handle reservations.", path: "/dashboard" },
     { icon: <ShieldCheck className="h-6 w-6" />, title: "Verified Reviews", desc: "Read authentic reviews from actual patients who have completed reservations.", path: "/reviews" },
-    { icon: <Smartphone className="h-6 w-6" />, title: "Mobile Optimized", desc: "Access the entire MediLink platform seamlessly from your phone, tablet, or desktop." },
+    { icon: <Smartphone className="h-6 w-6" />, title: "Mobile Optimized", desc: "Access the entire Rx Find platform seamlessly from your phone, tablet, or desktop." },
     { icon: <HeartPulse className="h-6 w-6" />, title: "Emergency Support", desc: "Quickly filter the map for 24/7 and emergency pharmacies when you need them most.", path: "/pharmacies" },
   ];
 
@@ -17,7 +17,7 @@ export function Features() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
       <div className="text-center max-w-3xl mx-auto mb-16">
         <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900 mb-6 tracking-tight">Powerful Features for Modern Healthcare</h1>
-        <p className="text-lg text-slate-600">MediLink bridges the gap between patients and pharmacies with state-of-the-art tools designed for speed, reliability, and convenience.</p>
+        <p className="text-lg text-slate-600">Rx Find bridges the gap between patients and pharmacies with state-of-the-art tools designed for speed, reliability, and convenience.</p>
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">

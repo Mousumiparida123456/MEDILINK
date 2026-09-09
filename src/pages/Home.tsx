@@ -7,7 +7,7 @@ import clsx from 'clsx';
 // FAQ Data
 const faqs = [
   {
-    question: 'How does MediLink find nearby medicines?',
+    question: 'How does Rx Find find nearby medicines?',
     answer: 'We partner directly with local pharmacies. Their inventory systems sync with our platform in real-time, allowing you to see exactly who has your medicine in stock right now.',
   },
   {
@@ -20,7 +20,7 @@ const faqs = [
   },
   {
     question: 'How do I handle prescription-only medicines?',
-    answer: 'You can search for prescription medicines on MediLink to check availability. You will still need to present a valid prescription from a certified doctor to the pharmacist upon purchase.',
+    answer: 'You can search for prescription medicines on Rx Find to check availability. You will still need to present a valid prescription from a certified doctor to the pharmacist upon purchase.',
   },
 ];
 
@@ -29,19 +29,19 @@ const testimonials = [
   {
     name: 'Sarah Jenkins',
     role: 'Mother of two',
-    text: 'When my son had a fever at 2 AM, MediLink helped me find the only 24/7 pharmacy that had his specific pediatric medicine in stock. An absolute lifesaver!',
+    text: 'When my son had a fever at 2 AM, Rx Find helped me find the only 24/7 pharmacy that had his specific pediatric medicine in stock. An absolute lifesaver!',
     rating: 5,
   },
   {
     name: 'David Chen',
     role: 'Chronic Patient',
-    text: 'I used to spend hours calling different pharmacies for my monthly refills. Now I just search on MediLink and know exactly where to go within seconds.',
+    text: 'I used to spend hours calling different pharmacies for my monthly refills. Now I just search on Rx Find and know exactly where to go within seconds.',
     rating: 5,
   },
   {
     name: 'Dr. Emily Ross',
     role: 'General Practitioner',
-    text: 'I recommend MediLink to all my patients. It reduces their anxiety about finding prescribed medications, especially during shortages.',
+    text: 'I recommend Rx Find to all my patients. It reduces their anxiety about finding prescribed medications, especially during shortages.',
     rating: 5,
   },
 ];

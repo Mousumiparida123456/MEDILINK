@@ -444,7 +444,7 @@ export function UserDashboard() {
                   <div className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl">
                     <div>
                       <h4 className="font-bold text-sm text-slate-900">Two-Factor Authentication</h4>
-                      <p className="text-xs text-slate-500">Secure your Medilink account with 2FA</p>
+                      <p className="text-xs text-slate-500">Secure your Rx Find account with 2FA</p>
                     </div>
                     <input type="checkbox" className="w-5 h-5 accent-primary" />
                   </div>

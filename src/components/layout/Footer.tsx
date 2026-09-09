@@ -12,7 +12,7 @@ export function Footer() {
                 <Pill className="h-5 w-5" />
               </div>
               <span className="font-bold text-xl tracking-tight text-slate-900">
-                Medi<span className="text-primary">Link</span>
+                Rx <span className="text-primary">Find</span>
               </span>
             </Link>
             <p className="text-slate-500 text-sm leading-relaxed">
@@ -69,7 +69,7 @@ export function Footer() {
         </div>
         <div className="mt-12 border-t border-slate-200 pt-8 flex flex-col md:flex-row justify-between items-center">
           <p className="text-sm text-slate-400">
-            &copy; {new Date().getFullYear()} MediLink. All rights reserved.
+            &copy; {new Date().getFullYear()} Rx Find. All rights reserved.
           </p>
         </div>
       </div>

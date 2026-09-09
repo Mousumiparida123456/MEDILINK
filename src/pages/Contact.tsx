@@ -5,7 +5,7 @@ export function Contact() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
       <div className="text-center max-w-3xl mx-auto mb-16">
         <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900 mb-6 tracking-tight">Get in Touch</h1>
-        <p className="text-lg text-slate-600">Have questions about MediLink? We're here to help patients, pharmacies, and developers.</p>
+        <p className="text-lg text-slate-600">Have questions about Rx Find? We're here to help patients, pharmacies, and developers.</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
@@ -45,8 +45,8 @@ export function Contact() {
                 </div>
                 <div>
                   <h4 className="font-bold text-slate-900 text-lg">Email Us</h4>
-                  <p className="text-slate-600">support@medilink.com</p>
-                  <p className="text-slate-600">partners@medilink.com</p>
+                  <p className="text-slate-600">support@rxfind.com</p>
+                  <p className="text-slate-600">partners@rxfind.com</p>
                 </div>
               </div>
               
@@ -56,7 +56,7 @@ export function Contact() {
                 </div>
                 <div>
                   <h4 className="font-bold text-slate-900 text-lg">Call Us</h4>
-                  <p className="text-slate-600">1-800-MEDILINK</p>
+                  <p className="text-slate-600">1-800-RX-FIND</p>
                   <p className="text-slate-500 text-sm mt-1">Mon-Fri from 8am to 8pm.</p>
                 </div>
               </div>
