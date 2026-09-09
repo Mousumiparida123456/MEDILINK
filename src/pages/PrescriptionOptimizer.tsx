@@ -124,10 +124,75 @@ export function PrescriptionOptimizer() {
       navigate('/login');
       return;
     }
-    if (!selectedPlan) return;
+    if (!selectedPlan || !plans || !plans[selectedPlan]) return;
 
-    toast.success('Plan reserved successfully!');
-    navigate('/reservations');
+    const planDetails = plans[selectedPlan].details || [];
+    const dateStr = new Date().toISOString().split('T')[0];
+    const newReservations: any[] = [];
+
+    if (Array.isArray(planDetails) && planDetails.length > 0) {
+      planDetails.forEach((d: any, index: number) => {
+        const code = `RESERVE-OPT-${Math.floor(100000 + Math.random() * 900000)}-${index + 1}`;
+        newReservations.push({
+          id: code,
+          _id: code,
+          medicine: `${d.brandName || d.genericName} (${d.genericName})`,
+          pharmacy: d.pharmacy?.name || 'Partnered Optimizer Pharmacy',
+          status: 'Ready for Pickup',
+          date: dateStr,
+          price: (d.price || 25) * (d.quantity || 1),
+          quantity: d.quantity || 1,
+          qrCodeToken: code,
+          pickupTime: new Date(Date.now() + 86400000).toISOString(),
+          medicineId: {
+            brandName: d.brandName || d.genericName,
+            genericName: d.genericName,
+            price: d.price || 25
+          },
+          pharmacyId: {
+            name: d.pharmacy?.name || 'Partnered Optimizer Pharmacy'
+          }
+        });
+      });
+    } else {
+      // Fallback single plan reservation
+      const code = `RESERVE-OPT-${Math.floor(100000 + Math.random() * 900000)}`;
+      newReservations.push({
+        id: code,
+        _id: code,
+        medicine: `Optimized Prescription Package (${items.map(i => i.genericName).join(', ')})`,
+        pharmacy: 'Apollo Pharmacy KIIT Square',
+        status: 'Ready for Pickup',
+        date: dateStr,
+        price: plans[selectedPlan].totalPrice || 50,
+        quantity: 1,
+        qrCodeToken: code,
+        pickupTime: new Date(Date.now() + 86400000).toISOString(),
+        medicineId: {
+          brandName: 'Optimized Prescription Package',
+          genericName: items.map(i => i.genericName).join(', '),
+          price: plans[selectedPlan].totalPrice || 50
+        },
+        pharmacyId: {
+          name: 'Apollo Pharmacy KIIT Square'
+        }
+      });
+    }
+
+    try {
+      const existingStr = localStorage.getItem('medilink_reservations') || '[]';
+      let existing: any[] = [];
+      try { existing = JSON.parse(existingStr); } catch { existing = []; }
+      const updated = [...newReservations, ...existing];
+      localStorage.setItem('medilink_reservations', JSON.stringify(updated));
+      window.dispatchEvent(new Event('medilink_reservation_created'));
+      window.dispatchEvent(new Event('storage'));
+    } catch (e) {
+      console.warn('Could not save optimizer reservation to localStorage:', e);
+    }
+
+    toast.success('Optimized Plan Reserved Successfully!', { icon: '🎉' });
+    navigate('/user/dashboard');
   };
 
   return (
