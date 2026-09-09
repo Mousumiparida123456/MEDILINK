@@ -129,7 +129,7 @@ export function Login() {
     if (authenticatedUser && tokenStr) {
       handleSuccessLogin(authenticatedUser, tokenStr);
     } else {
-      setError('Invalid email or password. Please try again or click Quick Demo Login.');
+      setError('No account found with these credentials. Please check your email & password or click Sign Up to create an account.');
       toast.error('Invalid credentials');
     }
 
