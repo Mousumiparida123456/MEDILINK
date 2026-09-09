@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth, DEMO_USERS, type UserRole, type User } from '../context/AuthContext';
 import { Pill, Mail, Lock, Eye, EyeOff, ArrowRight, Loader2, ShieldCheck, UserCheck, AlertCircle } from 'lucide-react';
@@ -12,8 +12,17 @@ export function Login() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  const { login } = useAuth();
+  const { login, isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      const destPath = (user.role === 'manager' || user.role === 'admin' || user.role === 'pharmacy')
+        ? '/manager/dashboard'
+        : '/user/dashboard';
+      navigate(destPath, { replace: true });
+    }
+  }, [isAuthenticated, user, navigate]);
 
 
   const handleSuccessLogin = (userObj: User, tokenStr: string) => {
