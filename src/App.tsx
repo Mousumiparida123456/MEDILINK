@@ -49,20 +49,23 @@ function App() {
           <Route path="/" element={<Layout />}>
             {/* Index route redirects unauthenticated visitors to /login first */}
             <Route index element={<RootRedirect />} />
-            <Route path="home" element={<Home />} />
-            <Route path="about" element={<About />} />
-            <Route path="features" element={<Features />} />
-            <Route path="search" element={<SearchMedicine />} />
-            <Route path="find" element={<FindMedicineWizard />} />
-            <Route path="optimizer" element={<PrescriptionOptimizer />} />
-            <Route path="medicine/:id" element={<MedicineDetails />} />
-            <Route path="pharmacies" element={<NearbyPharmacies />} />
-            <Route path="reviews" element={<Reviews />} />
-            <Route path="contact" element={<Contact />} />
+            {/* Protected Application Routes (Require Authentication First) */}
+            <Route path="home" element={<ProtectedRoute><Home /></ProtectedRoute>} />
+            <Route path="about" element={<ProtectedRoute><About /></ProtectedRoute>} />
+            <Route path="features" element={<ProtectedRoute><Features /></ProtectedRoute>} />
+            <Route path="search" element={<ProtectedRoute><SearchMedicine /></ProtectedRoute>} />
+            <Route path="find" element={<ProtectedRoute><FindMedicineWizard /></ProtectedRoute>} />
+            <Route path="optimizer" element={<ProtectedRoute><PrescriptionOptimizer /></ProtectedRoute>} />
+            <Route path="medicine/:id" element={<ProtectedRoute><MedicineDetails /></ProtectedRoute>} />
+            <Route path="pharmacies" element={<ProtectedRoute><NearbyPharmacies /></ProtectedRoute>} />
+            <Route path="reviews" element={<ProtectedRoute><Reviews /></ProtectedRoute>} />
+            <Route path="contact" element={<ProtectedRoute><Contact /></ProtectedRoute>} />
+            <Route path="emergency" element={<ProtectedRoute><EmergencyMode /></ProtectedRoute>} />
+            <Route path="scanner" element={<ProtectedRoute><PrescriptionScanner /></ProtectedRoute>} />
+
+            {/* Public Authentication Pages */}
             <Route path="login" element={<Login />} />
             <Route path="register" element={<Register />} />
-            <Route path="emergency" element={<EmergencyMode />} />
-            <Route path="scanner" element={<PrescriptionScanner />} />
 
             {/* Protected USER Routes */}
             <Route 
