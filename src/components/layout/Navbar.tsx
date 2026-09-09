@@ -42,8 +42,13 @@ export function Navbar() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  const dashboardPath = isAuthenticated 
+    ? (user?.role === 'manager' || user?.role === 'admin' || user?.role === 'pharmacy' ? '/manager/dashboard' : '/user/dashboard') 
+    : '/user/dashboard';
+
   const navLinks = [
     { name: 'Home', path: '/' },
+    { name: 'User Dashboard', path: dashboardPath },
     { name: 'Optimizer', path: '/optimizer' },
     { name: 'About', path: '/about' },
     { name: 'Features', path: '/features' },
