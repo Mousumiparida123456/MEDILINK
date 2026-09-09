@@ -92,19 +92,14 @@ export function Navbar() {
             
             {isAuthenticated ? (
               <>
-                {user?.role === 'pharmacy' && (
-                  <Link to="/dashboard" className="text-slate-600 hover:text-primary font-medium text-sm">
-                    Dashboard
+                {(user?.role === 'manager' || user?.role === 'admin' || user?.role === 'pharmacy') && (
+                  <Link to="/manager/dashboard" className="text-slate-600 hover:text-primary font-medium text-sm">
+                    Manager Dashboard
                   </Link>
                 )}
                 {user?.role === 'user' && (
-                  <Link to="/reservations" className="text-slate-600 hover:text-primary font-medium text-sm">
-                    My Reservations
-                  </Link>
-                )}
-                {user?.role === 'admin' && (
-                  <Link to="/admin" className="text-slate-600 hover:text-primary font-medium text-sm">
-                    Admin Panel
+                  <Link to="/user/dashboard" className="text-slate-600 hover:text-primary font-medium text-sm">
+                    User Dashboard
                   </Link>
                 )}
                 
@@ -217,19 +212,14 @@ export function Navbar() {
             
             {isAuthenticated ? (
               <>
-                {user?.role === 'pharmacy' && (
-                  <Link to="/dashboard" className="block px-3 py-2 text-base font-medium text-slate-600 hover:text-primary" onClick={() => setIsOpen(false)}>
-                    Dashboard
+                {(user?.role === 'manager' || user?.role === 'admin' || user?.role === 'pharmacy') && (
+                  <Link to="/manager/dashboard" className="block px-3 py-2 text-base font-medium text-slate-600 hover:text-primary" onClick={() => setIsOpen(false)}>
+                    Manager Dashboard
                   </Link>
                 )}
                 {user?.role === 'user' && (
-                  <Link to="/reservations" className="block px-3 py-2 text-base font-medium text-slate-600 hover:text-primary" onClick={() => setIsOpen(false)}>
-                    My Reservations
-                  </Link>
-                )}
-                {user?.role === 'admin' && (
-                  <Link to="/admin" className="block px-3 py-2 text-base font-medium text-slate-600 hover:text-primary" onClick={() => setIsOpen(false)}>
-                    Admin Panel
+                  <Link to="/user/dashboard" className="block px-3 py-2 text-base font-medium text-slate-600 hover:text-primary" onClick={() => setIsOpen(false)}>
+                    User Dashboard
                   </Link>
                 )}
                 <button
