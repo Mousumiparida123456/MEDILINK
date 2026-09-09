@@ -45,24 +45,39 @@ export function MyReservations() {
     if (!isAuthenticated) return;
     
     const fetchReservations = async () => {
-      try {
-        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/reservations/my-reservations`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        const data = await res.json();
-        if (res.ok && Array.isArray(data)) {
-          // If the user actually has real reservations in the DB, show them! 
-          // Otherwise, keep the dummy data so the page isn't empty.
-          if (data.length > 0) {
+      let isSuccess = false;
+      const apiUrl = import.meta.env.VITE_API_URL;
+      if (apiUrl && apiUrl !== 'undefined') {
+        try {
+          const res = await fetch(`${apiUrl}/api/reservations/my-reservations`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          const data = await res.json();
+          if (res.ok && Array.isArray(data) && data.length > 0) {
             setReservations(data);
+            isSuccess = true;
           }
+        } catch (err) {
+          console.warn("Backend reservations API unavailable, loading local storage reservations.");
         }
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
       }
+
+      if (!isSuccess) {
+        try {
+          const stored = localStorage.getItem('medilink_reservations');
+          if (stored) {
+            const parsed = JSON.parse(stored);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              setReservations(parsed);
+            }
+          }
+        } catch (e) {
+          console.warn('Error reading local reservations:', e);
+        }
+      }
+      setLoading(false);
     };
+
     fetchReservations();
   }, [token, isAuthenticated]);
 

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { 
   Calendar, FileText, Pill, Stethoscope, Bell, User as UserIcon, Settings, LogOut, 
@@ -13,13 +13,57 @@ export function UserDashboard() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'overview' | 'reservations' | 'records' | 'prescriptions' | 'doctors' | 'notifications' | 'profile' | 'settings'>('overview');
 
-  // Simulated User Data State
-  const [reservations] = useState([
-
+  // Initial Default Reservations
+  const DEFAULT_RESERVATIONS = [
     { id: 'res_101', medicine: 'Amoxicillin 500mg', pharmacy: 'City Central Pharmacy', status: 'Ready for Pickup', date: '2026-09-08', price: 18.50 },
     { id: 'res_102', medicine: 'Paracetamol Extra 650mg', pharmacy: 'Apollo Pharmacy KIIT', status: 'Completed', date: '2026-09-02', price: 12.00 },
     { id: 'res_103', medicine: 'Atorvastatin 20mg', pharmacy: 'Metro Meds 24/7', status: 'Processing', date: '2026-09-09', price: 34.00 },
-  ]);
+  ];
+
+  // Dynamic User Reservations State
+  const [reservations, setReservations] = useState<any[]>(() => {
+    try {
+      const stored = localStorage.getItem('medilink_reservations');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed;
+        }
+      }
+    } catch (e) {
+      console.warn('Error reading local reservations:', e);
+    }
+    return DEFAULT_RESERVATIONS;
+  });
+
+  // Sync state with localStorage whenever reservations are updated
+  useEffect(() => {
+    const loadReservations = () => {
+      try {
+        const stored = localStorage.getItem('medilink_reservations');
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setReservations(parsed);
+            return;
+          }
+        }
+      } catch (e) {
+        console.warn('Error loading reservations:', e);
+      }
+      setReservations(DEFAULT_RESERVATIONS);
+    };
+
+    window.addEventListener('medilink_reservation_created', loadReservations);
+    window.addEventListener('storage', loadReservations);
+    window.addEventListener('focus', loadReservations);
+
+    return () => {
+      window.removeEventListener('medilink_reservation_created', loadReservations);
+      window.removeEventListener('storage', loadReservations);
+      window.removeEventListener('focus', loadReservations);
+    };
+  }, []);
 
   const [records] = useState([
     { id: 'rec_1', title: 'Blood Work Report - Q3', doctor: 'Dr. Emily Ross', date: '2026-08-15', fileType: 'PDF' },

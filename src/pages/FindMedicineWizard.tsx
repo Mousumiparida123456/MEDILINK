@@ -699,6 +699,40 @@ export function FindMedicineWizard() {
     setReservationCode(code);
     setReservedPharmacy(pharmacyItem);
 
+    // Save reservation to persistent storage so it appears on the User Dashboard
+    const newReservation = {
+      id: code,
+      _id: code,
+      medicine: `${pharmacyItem.brandName} (${pharmacyItem.genericName})`,
+      pharmacy: pharmacyItem.pharmacyName || 'Local Verified Pharmacy',
+      status: 'Ready for Pickup',
+      date: new Date().toISOString().split('T')[0],
+      price: pharmacyItem.price,
+      quantity: 1,
+      qrCodeToken: code,
+      pickupTime: new Date(Date.now() + 86400000).toISOString(),
+      medicineId: {
+        brandName: pharmacyItem.brandName,
+        genericName: pharmacyItem.genericName,
+        price: pharmacyItem.price
+      },
+      pharmacyId: {
+        name: pharmacyItem.pharmacyName || 'Local Verified Pharmacy'
+      }
+    };
+
+    try {
+      const existingStr = localStorage.getItem('medilink_reservations') || '[]';
+      let existing: any[] = [];
+      try { existing = JSON.parse(existingStr); } catch { existing = []; }
+      const updated = [newReservation, ...existing];
+      localStorage.setItem('medilink_reservations', JSON.stringify(updated));
+      window.dispatchEvent(new Event('medilink_reservation_created'));
+      window.dispatchEvent(new Event('storage'));
+    } catch (e) {
+      console.warn('Could not save reservation to local storage:', e);
+    }
+
     setTimeout(() => {
       setReserving(false);
       setReservationComplete(true);
