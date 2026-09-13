@@ -341,12 +341,12 @@ export function ManagerDashboard() {
                           <tr key={res.id || res._id} className="hover:bg-slate-50 transition-colors">
                             <td className="p-3 font-mono text-xs font-bold text-slate-600">{res.qrCodeToken || res.id}</td>
                             <td className="p-3">
-                              <p className="font-bold text-slate-900">{res.patientName || 'Sarah Jenkins'}</p>
-                              <p className="text-xs text-slate-400">{res.patientEmail || 'patient@rxfind.com'}</p>
+                              <p className="font-bold text-slate-900">{res.patientName || 'Patient User'}</p>
+                              <p className="text-xs text-slate-400">{res.patientEmail || 'patient@medilink.com'}</p>
                             </td>
                             <td className="p-3 font-semibold text-slate-800">{res.medicine || res.medicineId?.brandName}</td>
                             <td className="p-3 text-slate-600">{res.pharmacy || res.pharmacyId?.name}</td>
-                            <td className="p-3 font-bold text-slate-900">${(res.price || 0).toFixed(2)}</td>
+                            <td className="p-3 font-bold text-slate-900">₹{(res.price || 0).toFixed(2)}</td>
                             <td className="p-3">
                               <span className={clsx("px-2.5 py-0.5 rounded-full text-xs font-bold", 
                                 res.status === 'Ready for Pickup' ? 'bg-emerald-100 text-emerald-700' :
@@ -464,8 +464,8 @@ export function ManagerDashboard() {
                             <tr key={resId} className="hover:bg-slate-50 transition-colors">
                               <td className="p-3 font-mono text-xs font-bold text-slate-600">{res.qrCodeToken || resId}</td>
                               <td className="p-3">
-                                <p className="font-bold text-slate-900">{res.patientName || 'Sarah Jenkins'}</p>
-                                <p className="text-xs text-slate-400">{res.patientEmail || 'patient@rxfind.com'}</p>
+                                <p className="font-bold text-slate-900">{res.patientName || 'Patient User'}</p>
+                                <p className="text-xs text-slate-400">{res.patientEmail || 'patient@medilink.com'}</p>
                               </td>
                               <td className="p-3">
                                 <p className="font-bold text-slate-900">{res.medicine || res.medicineId?.brandName}</p>
@@ -476,7 +476,7 @@ export function ManagerDashboard() {
                                 <p className="font-medium text-slate-700 text-xs">{res.date}</p>
                                 {res.pickupTime && <p className="text-[11px] text-slate-400">Pickup: {new Date(res.pickupTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</p>}
                               </td>
-                              <td className="p-3 font-bold text-emerald-600">${(res.price || 0).toFixed(2)}</td>
+                              <td className="p-3 font-bold text-emerald-600">₹{(res.price || 0).toFixed(2)}</td>
                               <td className="p-3">
                                 <span className={clsx("px-2.5 py-0.5 rounded-full text-xs font-bold", 
                                   res.status === 'Ready for Pickup' ? 'bg-emerald-100 text-emerald-700' :

@@ -12,7 +12,7 @@ interface BasketItem {
 }
 
 export function PrescriptionOptimizer() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
   const [items, setItems] = useState<BasketItem[]>([]);
   const [genericName, setGenericName] = useState('');
@@ -126,6 +126,7 @@ export function PrescriptionOptimizer() {
     }
     if (!selectedPlan || !plans || !plans[selectedPlan]) return;
 
+    const activeUser = user || (sessionStorage.getItem('user') ? JSON.parse(sessionStorage.getItem('user')!) : null);
     const planDetails = plans[selectedPlan].details || [];
     const dateStr = new Date().toISOString().split('T')[0];
     const newReservations: any[] = [];
@@ -136,6 +137,9 @@ export function PrescriptionOptimizer() {
         newReservations.push({
           id: code,
           _id: code,
+          patientName: activeUser?.name || 'omprakash',
+          patientEmail: activeUser?.email || 'mousumiparida5520@gmail.com',
+          patientId: activeUser?.id || 'usr_patient',
           medicine: `${d.brandName || d.genericName} (${d.genericName})`,
           pharmacy: d.pharmacy?.name || 'Partnered Optimizer Pharmacy',
           status: 'Ready for Pickup',
@@ -160,6 +164,9 @@ export function PrescriptionOptimizer() {
       newReservations.push({
         id: code,
         _id: code,
+        patientName: activeUser?.name || 'omprakash',
+        patientEmail: activeUser?.email || 'mousumiparida5520@gmail.com',
+        patientId: activeUser?.id || 'usr_patient',
         medicine: `Optimized Prescription Package (${items.map(i => i.genericName).join(', ')})`,
         pharmacy: 'Apollo Pharmacy KIIT Square',
         status: 'Ready for Pickup',

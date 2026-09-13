@@ -7,6 +7,7 @@ import clsx from 'clsx';
 import { useNavigate } from 'react-router-dom';
 import { QRCodeSVG } from 'qrcode.react';
 import toast from 'react-hot-toast';
+import { useAuth } from '../context/AuthContext';
 
 // Component to dynamically update Leaflet map center
 function MapUpdater({ center, zoom }: { center: [number, number]; zoom: number }) {
@@ -391,6 +392,7 @@ const MASTER_MEDICINE_DATABASE: MedicineItem[] = [
 
 export function FindMedicineWizard() {
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   // Wizard Step Management
   const [step, setStep] = useState<1 | 2 | 3>(1);
@@ -699,10 +701,15 @@ export function FindMedicineWizard() {
     setReservationCode(code);
     setReservedPharmacy(pharmacyItem);
 
+    const activeUser = user || (sessionStorage.getItem('user') ? JSON.parse(sessionStorage.getItem('user')!) : null);
+
     // Save reservation to persistent storage so it appears on the User Dashboard
     const newReservation = {
       id: code,
       _id: code,
+      patientName: activeUser?.name || 'omprakash',
+      patientEmail: activeUser?.email || 'mousumiparida5520@gmail.com',
+      patientId: activeUser?.id || 'usr_patient',
       medicine: `${pharmacyItem.brandName} (${pharmacyItem.genericName})`,
       pharmacy: pharmacyItem.pharmacyName || 'Local Verified Pharmacy',
       status: 'Ready for Pickup',
