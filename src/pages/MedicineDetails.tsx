@@ -9,7 +9,7 @@ import toast from 'react-hot-toast';
 
 export function MedicineDetails() {
   const { id } = useParams();
-  const { token, isAuthenticated } = useAuth();
+  const { token, isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
   
   const [medicine, setMedicine] = useState<any>(null);
@@ -148,6 +148,9 @@ export function MedicineDetails() {
     const newReservation = {
       id: qrToken,
       _id: qrToken,
+      patientName: user?.name || 'Sarah Jenkins',
+      patientEmail: user?.email || 'patient@rxfind.com',
+      patientId: user?.id || 'usr_pat_1',
       medicine: `${medicine.brandName} (${medicine.genericName})`,
       pharmacy: medicine.pharmacyName || medicine.pharmacyId?.name || 'Partnered Pharmacy',
       status: 'Ready for Pickup',

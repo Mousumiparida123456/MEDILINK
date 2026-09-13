@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { 
   Users, Stethoscope, Calendar, TrendingUp, AlertTriangle, FileText, Settings, 
-  LogOut, User as UserIcon, CheckCircle2, Plus, ShieldCheck, Activity, Download
+  LogOut, User as UserIcon, CheckCircle2, Plus, ShieldCheck, Activity, Download,
+  Pill, Search
 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 import { useNavigate } from 'react-router-dom';
@@ -12,7 +13,7 @@ import toast from 'react-hot-toast';
 export function ManagerDashboard() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'doctors' | 'appointments' | 'analytics' | 'reports' | 'alerts' | 'profile' | 'settings'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'reservations' | 'users' | 'doctors' | 'appointments' | 'analytics' | 'reports' | 'alerts' | 'profile' | 'settings'>('overview');
 
   // Manager State Data
   const [stats] = useState({
@@ -24,6 +25,76 @@ export function ManagerDashboard() {
     activePatients: 890,
     alertsCount: 3,
   });
+
+  // Default fallback patient reservations
+  const DEFAULT_RESERVATIONS = [
+    { id: 'RESERVE-781923', _id: 'RESERVE-781923', qrCodeToken: 'RESERVE-781923', patientName: 'Sarah Jenkins', patientEmail: 'sarah.j@example.com', medicine: 'Dolo 650 Tablet (Paracetamol 650mg)', pharmacy: 'Apollo Pharmacy KIIT Square', status: 'Ready for Pickup', date: '2026-09-12', price: 32.50, quantity: 1, pickupTime: '2026-09-13T10:00:00.000Z' },
+    { id: 'RESERVE-449102', _id: 'RESERVE-449102', qrCodeToken: 'RESERVE-449102', patientName: 'David Chen', patientEmail: 'david.chen@example.com', medicine: 'Amoxicillin 500mg', pharmacy: 'City Central Pharmacy', status: 'Confirmed', date: '2026-09-10', price: 18.50, quantity: 2, pickupTime: '2026-09-11T14:30:00.000Z' },
+    { id: 'RESERVE-112093', _id: 'RESERVE-112093', qrCodeToken: 'RESERVE-112093', patientName: 'Emily Watson', patientEmail: 'emily.w@example.com', medicine: 'Atorvastatin 20mg', pharmacy: 'Metro Meds 24/7', status: 'Completed', date: '2026-09-08', price: 34.00, quantity: 1, pickupTime: '2026-09-09T18:00:00.000Z' }
+  ];
+
+  // Dynamic Patient Reservations State
+  const [reservations, setReservations] = useState<any[]>(() => {
+    try {
+      const stored = localStorage.getItem('medilink_reservations');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch (e) {
+      console.warn('Error reading local reservations in ManagerDashboard:', e);
+    }
+    return DEFAULT_RESERVATIONS;
+  });
+
+  const [reservationSearch, setReservationSearch] = useState('');
+
+  // Sync state with localStorage whenever reservations are updated by patients
+  useEffect(() => {
+    const loadReservations = () => {
+      try {
+        const stored = localStorage.getItem('medilink_reservations');
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setReservations(parsed);
+            return;
+          }
+        }
+      } catch (e) {
+        console.warn('Error loading reservations:', e);
+      }
+      setReservations(DEFAULT_RESERVATIONS);
+    };
+
+    window.addEventListener('medilink_reservation_created', loadReservations);
+    window.addEventListener('storage', loadReservations);
+    window.addEventListener('focus', loadReservations);
+
+    return () => {
+      window.removeEventListener('medilink_reservation_created', loadReservations);
+      window.removeEventListener('storage', loadReservations);
+      window.removeEventListener('focus', loadReservations);
+    };
+  }, []);
+
+  const handleUpdateReservationStatus = (resId: string, newStatus: string) => {
+    const updated = reservations.map(r => {
+      if (r.id === resId || r._id === resId || r.qrCodeToken === resId) {
+        return { ...r, status: newStatus };
+      }
+      return r;
+    });
+    setReservations(updated);
+    try {
+      localStorage.setItem('medilink_reservations', JSON.stringify(updated));
+      window.dispatchEvent(new Event('medilink_reservation_created'));
+      window.dispatchEvent(new Event('storage'));
+    } catch (e) {
+      console.warn('Error updating reservation in localStorage:', e);
+    }
+    toast.success(`Reservation status changed to "${newStatus}"`);
+  };
 
   const [usersList, setUsersList] = useState([
     { id: 'usr_1', name: 'Sarah Jenkins', email: 'sarah.j@example.com', role: 'Patient', status: 'Active', joined: '2026-01-12' },
@@ -132,6 +203,7 @@ export function ManagerDashboard() {
 
             {[
               { id: 'overview', label: 'Overview Metrics', icon: Activity },
+              { id: 'reservations', label: 'Medicine Reservations', icon: Pill, badge: reservations.length },
               { id: 'users', label: 'Patient & User Directory', icon: Users, badge: stats.totalUsers },
               { id: 'doctors', label: 'Doctor Management', icon: Stethoscope, badge: stats.totalDoctors },
               { id: 'appointments', label: 'Appointment Control', icon: Calendar, badge: stats.todaysAppointments },
@@ -175,8 +247,8 @@ export function ManagerDashboard() {
             {activeTab === 'overview' && (
               <div className="space-y-6">
                 
-                {/* 6 Key Performance Metric Cards */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                {/* 7 Key Performance Metric Cards */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
                   <div className="bg-white p-5 rounded-3xl shadow-soft border border-slate-100">
                     <div className="flex justify-between items-center mb-2">
                       <span className="text-xs font-bold text-slate-400 uppercase">Total Users</span>
@@ -184,6 +256,15 @@ export function ManagerDashboard() {
                     </div>
                     <h3 className="text-2xl font-extrabold text-slate-900">{stats.totalUsers}</h3>
                     <p className="text-xs text-emerald-600 font-bold mt-1">↑ 12% vs last month</p>
+                  </div>
+
+                  <div className="bg-white p-5 rounded-3xl shadow-soft border border-slate-100 cursor-pointer hover:border-emerald-300 transition-colors" onClick={() => setActiveTab('reservations')}>
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-xs font-bold text-slate-400 uppercase">Medicine Reservations</span>
+                      <Pill className="w-5 h-5 text-emerald-500" />
+                    </div>
+                    <h3 className="text-2xl font-extrabold text-slate-900">{reservations.length}</h3>
+                    <p className="text-xs text-emerald-600 font-bold mt-1">Live patient orders</p>
                   </div>
 
                   <div className="bg-white p-5 rounded-3xl shadow-soft border border-slate-100">
@@ -229,6 +310,56 @@ export function ManagerDashboard() {
                     </div>
                     <h3 className="text-2xl font-extrabold text-rose-600">{stats.alertsCount}</h3>
                     <p className="text-xs text-rose-500 font-bold mt-1">Action required</p>
+                  </div>
+                </div>
+
+                {/* Recent Patient Medicine Reservations Table */}
+                <div className="bg-white p-6 rounded-3xl shadow-soft border border-slate-100 space-y-4">
+                  <div className="flex justify-between items-center">
+                    <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+                      <Pill className="w-5 h-5 text-emerald-500" /> Recent Patient Medicine Reservations
+                    </h3>
+                    <button onClick={() => setActiveTab('reservations')} className="text-xs font-bold text-emerald-600 hover:underline">
+                      View All ({reservations.length}) →
+                    </button>
+                  </div>
+                  
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse">
+                      <thead>
+                        <tr className="border-b border-slate-100 text-xs font-bold text-slate-400 uppercase">
+                          <th className="p-3">Reservation ID</th>
+                          <th className="p-3">Patient</th>
+                          <th className="p-3">Medicine</th>
+                          <th className="p-3">Pharmacy</th>
+                          <th className="p-3">Amount</th>
+                          <th className="p-3">Status</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100 text-sm">
+                        {reservations.slice(0, 4).map((res) => (
+                          <tr key={res.id || res._id} className="hover:bg-slate-50 transition-colors">
+                            <td className="p-3 font-mono text-xs font-bold text-slate-600">{res.qrCodeToken || res.id}</td>
+                            <td className="p-3">
+                              <p className="font-bold text-slate-900">{res.patientName || 'Sarah Jenkins'}</p>
+                              <p className="text-xs text-slate-400">{res.patientEmail || 'patient@rxfind.com'}</p>
+                            </td>
+                            <td className="p-3 font-semibold text-slate-800">{res.medicine || res.medicineId?.brandName}</td>
+                            <td className="p-3 text-slate-600">{res.pharmacy || res.pharmacyId?.name}</td>
+                            <td className="p-3 font-bold text-slate-900">${(res.price || 0).toFixed(2)}</td>
+                            <td className="p-3">
+                              <span className={clsx("px-2.5 py-0.5 rounded-full text-xs font-bold", 
+                                res.status === 'Ready for Pickup' ? 'bg-emerald-100 text-emerald-700' :
+                                res.status === 'Completed' ? 'bg-blue-100 text-blue-700' :
+                                res.status === 'Cancelled' ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-700'
+                              )}>
+                                {res.status}
+                              </span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                   </div>
                 </div>
 
@@ -278,6 +409,101 @@ export function ManagerDashboard() {
                   </div>
                 </div>
 
+              </div>
+            )}
+
+            {/* MEDICINE RESERVATIONS TAB */}
+            {activeTab === 'reservations' && (
+              <div className="bg-white p-6 sm:p-8 rounded-3xl shadow-soft border border-slate-100 space-y-6">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                  <div>
+                    <h3 className="text-xl font-bold text-slate-900">Patient Medicine Reservations & Orders</h3>
+                    <p className="text-xs text-slate-500">View and update real-time medicine reservations placed by patients.</p>
+                  </div>
+                  <div className="relative w-full sm:w-64">
+                    <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                    <input 
+                      type="text" 
+                      placeholder="Filter reservations..." 
+                      value={reservationSearch}
+                      onChange={(e) => setReservationSearch(e.target.value)}
+                      className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                    />
+                  </div>
+                </div>
+
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="border-b border-slate-100 text-xs font-bold text-slate-400 uppercase">
+                        <th className="p-3">Token / QR ID</th>
+                        <th className="p-3">Patient Info</th>
+                        <th className="p-3">Medicine & Qty</th>
+                        <th className="p-3">Pharmacy Location</th>
+                        <th className="p-3">Date / Pickup</th>
+                        <th className="p-3">Total Price</th>
+                        <th className="p-3">Status</th>
+                        <th className="p-3 text-right">Manager Action</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 text-sm">
+                      {reservations
+                        .filter(res => {
+                          if (!reservationSearch) return true;
+                          const q = reservationSearch.toLowerCase();
+                          return (
+                            (res.qrCodeToken || '').toLowerCase().includes(q) ||
+                            (res.patientName || '').toLowerCase().includes(q) ||
+                            (res.medicine || '').toLowerCase().includes(q) ||
+                            (res.pharmacy || '').toLowerCase().includes(q)
+                          );
+                        })
+                        .map((res) => {
+                          const resId = res.id || res._id || res.qrCodeToken;
+                          return (
+                            <tr key={resId} className="hover:bg-slate-50 transition-colors">
+                              <td className="p-3 font-mono text-xs font-bold text-slate-600">{res.qrCodeToken || resId}</td>
+                              <td className="p-3">
+                                <p className="font-bold text-slate-900">{res.patientName || 'Sarah Jenkins'}</p>
+                                <p className="text-xs text-slate-400">{res.patientEmail || 'patient@rxfind.com'}</p>
+                              </td>
+                              <td className="p-3">
+                                <p className="font-bold text-slate-900">{res.medicine || res.medicineId?.brandName}</p>
+                                <p className="text-xs text-slate-500">Qty: {res.quantity || 1} unit(s)</p>
+                              </td>
+                              <td className="p-3 text-slate-600">{res.pharmacy || res.pharmacyId?.name}</td>
+                              <td className="p-3">
+                                <p className="font-medium text-slate-700 text-xs">{res.date}</p>
+                                {res.pickupTime && <p className="text-[11px] text-slate-400">Pickup: {new Date(res.pickupTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</p>}
+                              </td>
+                              <td className="p-3 font-bold text-emerald-600">${(res.price || 0).toFixed(2)}</td>
+                              <td className="p-3">
+                                <span className={clsx("px-2.5 py-0.5 rounded-full text-xs font-bold", 
+                                  res.status === 'Ready for Pickup' ? 'bg-emerald-100 text-emerald-700' :
+                                  res.status === 'Completed' ? 'bg-blue-100 text-blue-700' :
+                                  res.status === 'Cancelled' ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-700'
+                                )}>
+                                  {res.status}
+                                </span>
+                              </td>
+                              <td className="p-3 text-right">
+                                <select 
+                                  value={res.status}
+                                  onChange={(e) => handleUpdateReservationStatus(resId, e.target.value)}
+                                  className="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 focus:outline-none"
+                                >
+                                  <option value="Ready for Pickup">Ready for Pickup</option>
+                                  <option value="Confirmed">Confirmed</option>
+                                  <option value="Completed">Completed</option>
+                                  <option value="Cancelled">Cancelled</option>
+                                </select>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             )}
 
