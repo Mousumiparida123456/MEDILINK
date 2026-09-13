@@ -1,134 +1,80 @@
-# MEDILINK
+# 💊 Rx Find — Medicine Discovery & Pharmacy Inventory Platform
 
-# React + TypeScript + Vite
+> **Know where your medicine is before you leave home.**
 
-"Imagine it's 11:30 PM. A patient's child suddenly develops a high fever. The doctor prescribes an emergency medicine, but after visiting three pharmacies, none have it. Every minute matters. Our platform solves this by showing which nearby pharmacy has the medicine in stock before the patient leaves home."
+Rx Find is a location-aware medicine discovery platform that helps users find, compare, and reserve medicines from nearby pharmacies.
 
-project deployement link : https://medilink-tawny-gamma.vercel.app/
+The platform addresses the problem of medicine availability discovery by allowing users to search for a medicine, identify nearby pharmacies with available stock, compare prices, and reserve the medicine before visiting the pharmacy.
 
-"Google Maps tells you where a place is.
+### 🔗 Links
 
-Swiggy tells you which restaurant has food.
+* **Live Application:** https://medilink-tawny-gamma.vercel.app/
+* **GitHub Repository:** https://github.com/Mousumiparida123456/MEDILINK
 
-MediFind tells you exactly where your medicine is available."
+---
 
-Search Medicine
+# 🧩 Problem Statement
 
-Problem:
-"I don't know which pharmacy has it."
+Traditional medicine purchasing often follows a trial-and-error workflow:
 
-Solution:
-Search once.
-
-Nearby Pharmacy
-
-Problem:
-"I don't know which shop is nearest."
-
-Solution:
-GPS shows the closest pharmacy.
-
-Live Stock
-
-Problem:
-"I reach the shop only to find it's out of stock."
-
-Solution:
-Real-time inventory.
-
-Reservation
-
-Problem:
-"Someone may buy the last strip before I reach."
-
-Solution:
-Reserve instantly.
-
-Generic Alternative
-
-Problem:
-"My medicine isn't available."
-
-Solution:
-Show equivalent generic medicines with doctor-approved information.
-
-Price Comparison
-
-Problem:
-"One pharmacy charges much more."
-
-Solution:
-Compare prices before purchasing.
-
-#FLOW
-
-Register
-
-↓
-
-Search Medicine
-
-↓
-
-Current Location
-
-↓
-
-Nearby Pharmacies
-
-↓
-
-Availability
-
-↓
-
-Compare Price
-
-↓
-
-Reserve Medicine
-
-↓
-
-Receive QR Code
-
-↓
-
+```text
+Doctor Prescription
+        ↓
 Visit Pharmacy
-
-↓
-
-Collect Medicine
-
-# MediLink (MediFind)
-
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
-
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+        ↓
+Check Availability
+        ↓
+     Not Found
+        ↓
+Visit Another Pharmacy
+        ↓
+      Repeat
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+This becomes inefficient for **urgent medicines, uncommon drugs, and time-sensitive requirements**.
+
+Rx Find converts this into a:
+
+```text
+SEARCH → DISCOVER → COMPARE → RESERVE → COLLECT
+```
+
+workflow.
+
+---
+
+# 💡 Solution
+
+Rx Find acts as a digital discovery layer between **patients and pharmacies**.
+
+```text
+                     Rx Find
+                         │
+          ┌──────────────┼──────────────┐
+          ↓              ↓              ↓
+     Medicine        Location       Pharmacy
+      Search          Service       Inventory
+          │              │              │
+          └──────────────┼──────────────┘
+                         ↓
+                Availability Engine
+                         │
+                  ┌──────┴──────┐
+                  ↓             ↓
+              Pricing       Reservation
+                  │             │
+                  └──────┬──────┘
+                         ↓
+                    QR Collection
+```
+
+---
+
+# 🏗️ System Architecture
+
+```text
+┌──────────────────────────────────────────────────────┐
+│                     CLIENT LAYER                     │
+│                                                      │
+│              React + TypeScript +
+```
