@@ -567,7 +567,7 @@ git clone https://github.com/Mousumiparida123456/MEDILINK.git
 ### 2. Navigate to the project
 
 ```bash
-cd MEDILINK
+cd Rx Find
 ```
 
 ### 3. Install dependencies
