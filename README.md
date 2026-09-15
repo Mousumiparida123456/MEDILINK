@@ -1,7 +1,5 @@
 # 💊 MediLinkRx — Medicine Discovery & Pharmacy Inventory Platform
 
-[//]: # "Know where your medicine is before you leave home."
-
 > **Know where your medicine is before you leave home.**
 
 MediLinkRx is a location-aware medicine discovery platform that helps users find, compare, and reserve medicines from nearby pharmacies.
@@ -45,7 +43,7 @@ workflow.
 MediLinkRx acts as a digital discovery layer between **patients and pharmacies**.
 
 ```text
-                     MediLinkRx
+                   MediLinkRx
                          │
            ┌──────────────┼──────────────┐
            ↓              ↓              ↓

@@ -118,7 +118,7 @@ export function Register() {
         tokenStr = `token_local_${Date.now()}`;
       }
 
-      setSuccess(`Account created successfully! Welcome to MediLink, ${userData.name}.`);
+      setSuccess(`Account created successfully! Welcome to MediLinkRx, ${userData.name}.`);
       toast.success('Registration successful!');
 
       // Authenticate newly registered user and navigate to appropriate dashboard
@@ -151,14 +151,14 @@ export function Register() {
               <Pill className="h-7 w-7" />
             </div>
             <span className="font-extrabold text-3xl tracking-tight text-slate-900">
-              Rx <span className="text-primary">Find</span>
+              MediLink<span className="text-primary">Rx</span>
             </span>
           </Link>
           <h2 className="text-2xl font-extrabold text-slate-900 mt-2">Create your account</h2>
           <p className="mt-1.5 text-sm text-slate-600">
             Already have an account?{' '}
             <Link to="/login" className="font-semibold text-primary hover:text-primary-dark transition-colors">
-              Sign in to Rx Find
+              Sign in to MediLinkRx
             </Link>
           </p>
         </div>
@@ -303,7 +303,7 @@ export function Register() {
               <Loader2 className="h-5 w-5 animate-spin" />
             ) : (
               <>
-                <span>Create MediLink Account</span>
+                <span>Create MediLinkRx Account</span>
                 <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
               </>
             )}
@@ -312,7 +312,7 @@ export function Register() {
 
         <div className="border-t border-slate-100 pt-4 text-center">
           <p className="text-xs text-slate-500">
-            By signing up, you agree to MediLink's Terms of Service & Privacy Policy.
+            By signing up, you agree to MediLinkRx's Terms of Service & Privacy Policy.
           </p>
         </div>
       </div>

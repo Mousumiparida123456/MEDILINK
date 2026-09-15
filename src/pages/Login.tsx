@@ -165,14 +165,14 @@ export function Login() {
               <Pill className="h-7 w-7" />
             </div>
             <span className="font-extrabold text-3xl tracking-tight text-slate-900">
-              Rx <span className="text-primary">Find</span>
+              MediLink<span className="text-primary">Rx</span>
             </span>
           </Link>
           <h2 className="text-2xl font-extrabold text-slate-900 mt-2">Sign in to your account</h2>
           <p className="mt-1.5 text-sm text-slate-600">
             Or{' '}
             <Link to="/register" className="font-semibold text-primary hover:text-primary-dark transition-colors">
-              create a new Rx Find account
+              create a new MediLinkRx account
             </Link>
           </p>
         </div>
@@ -280,7 +280,7 @@ export function Login() {
               <Loader2 className="h-5 w-5 animate-spin" />
             ) : (
               <>
-                <span>Sign in to MediLink</span>
+                <span>Sign in to MediLinkRx</span>
                 <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
               </>
             )}
