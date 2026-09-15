@@ -1,15 +1,12 @@
-# 💊 Rx Find — Medicine Discovery & Pharmacy Inventory Platform
+# 💊 MediLinkRx — Medicine Discovery & Pharmacy Inventory Platform
+
+[//]: # "Know where your medicine is before you leave home."
 
 > **Know where your medicine is before you leave home.**
 
-Rx Find is a location-aware medicine discovery platform that helps users find, compare, and reserve medicines from nearby pharmacies.
+MediLinkRx is a location-aware medicine discovery platform that helps users find, compare, and reserve medicines from nearby pharmacies.
 
 The platform addresses the problem of medicine availability discovery by allowing users to search for a medicine, identify nearby pharmacies with available stock, compare prices, and reserve the medicine before visiting the pharmacy.
-
-### 🔗 Links
-
-* **Live Application:** https://medilink-tawny-gamma.vercel.app/
-* **GitHub Repository:** https://github.com/Mousumiparida123456/MEDILINK
 
 ---
 
@@ -24,16 +21,16 @@ Visit Pharmacy
         ↓
 Check Availability
         ↓
-     Not Found
+      Not Found
         ↓
 Visit Another Pharmacy
         ↓
-      Repeat
+       Repeat
 ```
 
 This becomes inefficient for **urgent medicines, uncommon drugs, and time-sensitive requirements**.
 
-Rx Find converts this into a:
+MediLinkRx converts this into a:
 
 ```text
 SEARCH → DISCOVER → COMPARE → RESERVE → COLLECT
@@ -45,27 +42,27 @@ workflow.
 
 # 💡 Solution
 
-Rx Find acts as a digital discovery layer between **patients and pharmacies**.
+MediLinkRx acts as a digital discovery layer between **patients and pharmacies**.
 
 ```text
-                     Rx Find
+                     MediLinkRx
                          │
-          ┌──────────────┼──────────────┐
-          ↓              ↓              ↓
-     Medicine        Location       Pharmacy
-      Search          Service       Inventory
-          │              │              │
-          └──────────────┼──────────────┘
+           ┌──────────────┼──────────────┐
+           ↓              ↓              ↓
+      Medicine        Location       Pharmacy
+       Search          Service       Inventory
+           │              │              │
+           └──────────────┼──────────────┘
                          ↓
-                Availability Engine
+                 Availability Engine
                          │
-                  ┌──────┴──────┐
-                  ↓             ↓
-              Pricing       Reservation
-                  │             │
-                  └──────┬──────┘
+                   ┌──────┴──────┐
+                   ↓             ↓
+               Pricing       Reservation
+                   │             │
+                   └──────┬──────┘
                          ↓
-                    QR Collection
+                     QR Collection
 ```
 
 ---
@@ -180,7 +177,7 @@ Matching Pharmacies
 
 # 📍 3. Location-Based Pharmacy Discovery
 
-Rx Find uses the user's location to identify nearby pharmacies.
+MediLinkRx uses the user's location to identify nearby pharmacies.
 
 ```text
 User Location
@@ -247,7 +244,7 @@ The `updatedAt` field can be used to determine how recently inventory informatio
 
 # 💰 5. Price Comparison
 
-When multiple pharmacies have the requested medicine, Rx Find can compare their prices.
+When multiple pharmacies have the requested medicine, MediLinkRx can compare their prices.
 
 ```text
 Medicine
@@ -290,7 +287,7 @@ STOCK AVAILABLE?
    / \
  YES  NO
   ↓    ↓
-LOCK   REJECT
+ LOCK  REJECT
 STOCK
   ↓
 CREATE RESERVATION
@@ -358,44 +355,44 @@ Alternative medicines should be presented as informational suggestions and not a
                     USER
                      │
                      ↓
-              Search Medicine
+               Search Medicine
                      │
                      ↓
-              Medicine Service
+               Medicine Service
                      │
                      ↓
-             Location Service
+              Location Service
                      │
                      ↓
-          Nearby Pharmacy Search
+           Nearby Pharmacy Search
                      │
                      ↓
-             Inventory Service
+              Inventory Service
                      │
-              ┌──────┴──────┐
-              ↓             ↓
-         Available       Unavailable
-              │             │
-              ↓             ↓
-       Price Comparison   Alternatives
-              │
-              ↓
-         Select Pharmacy
-              │
-              ↓
-        Reservation API
-              │
-              ↓
-        Stock Validation
-              │
-              ↓
-       Reservation Created
-              │
-              ↓
-           QR Code
-              │
-              ↓
-       Pharmacy Collection
+               ┌─────┴─────┐
+               ↓           ↓
+          Available    Unavailable
+               │           │
+               ↓           ↓
+        Price Comparison Alternatives
+               │
+               ↓
+          Select Pharmacy
+               │
+               ↓
+         Reservation API
+               │
+               ↓
+         Stock Validation
+               │
+               ↓
+        Reservation Created
+               │
+               ↓
+             QR Code
+               │
+               ↓
+        Pharmacy Collection
 ```
 
 ---
@@ -511,7 +508,7 @@ A simplified relational model:
 # 📁 Project Structure
 
 ```text
-RX-FIND/
+MEDILINKRX/
 │
 ├── public/
 │
@@ -567,7 +564,7 @@ git clone https://github.com/Mousumiparida123456/MEDILINK.git
 ### 2. Navigate to the project
 
 ```bash
-cd Rx Find
+cd MediLinkRx
 ```
 
 ### 3. Install dependencies
@@ -588,7 +585,7 @@ The application will be available at the local development URL displayed in the 
 
 # 🌐 Deployment
 
-Rx Find is deployed using **Vercel**.
+MediLinkRx is deployed using **Vercel**.
 
 ### Live Application
 
@@ -598,7 +595,7 @@ https://medilink-tawny-gamma.vercel.app/
 
 # 🔐 Security Considerations
 
-For production deployment, Rx Find should implement:
+For production deployment, MediLinkRx should implement:
 
 * Secure authentication
 * Password hashing
@@ -622,19 +619,19 @@ The architecture can evolve toward independent services:
 ```text
                     API Gateway
                          │
-              ┌──────────┼──────────┐
-              ↓          ↓          ↓
-          Medicine   Pharmacy   Reservation
-           Service    Service      Service
-              │          │          │
-              └──────────┼──────────┘
+               ┌─────────┼─────────┐
+               ↓         ↓         ↓
+           Medicine   Pharmacy   Reservation
+            Service    Service      Service
+               │         │         │
+               └─────────┼─────────┘
                          ↓
-                      Database
+                       Database
                          │
-              ┌──────────┴──────────┐
-              ↓                     ↓
-           Cache                 Search
-          Layer                  Index
+               ┌─────────┴─────────┐
+               ↓                   ↓
+            Cache                Search
+           Layer                 Index
 ```
 
 Potential optimizations:
@@ -685,7 +682,7 @@ Potential optimizations:
 
 # 📊 Key Engineering Challenges
 
-Rx Find involves several real-world engineering challenges:
+MediLinkRx involves several real-world engineering challenges:
 
 ### 1. Real-Time Inventory
 
@@ -725,7 +722,7 @@ OUT OF STOCK
 REPEAT
 ```
 
-Rx Find workflow:
+MediLinkRx workflow:
 
 ```text
 SEARCH
@@ -741,12 +738,13 @@ RESERVE
 COLLECT
 ```
 
-> **Rx Find reduces the uncertainty and wasted travel involved in finding medicines by connecting users with pharmacy availability information before they visit.**
+> **MediLinkRx reduces the uncertainty and wasted travel involved in finding medicines by connecting users with pharmacy availability information before they visit.**
 
 ---
 
 # 👨‍💻 Project
 
-**Rx Find — Medicine Discovery & Pharmacy Inventory Platform**
+**MediLinkRx — Medicine Discovery & Pharmacy Inventory Platform**
 
 Built with **React, TypeScript and Vite**, focusing on location-aware pharmacy discovery, medicine availability, price comparison, reservation management, and QR-based collection.
+
