@@ -124,6 +124,10 @@ export function Home() {
                   <Phone className="h-5 w-5" />
                   Emergency Medicine Mode 🔴
                 </Link>
+                 <div>
+                  <div className="text-2xl font-bold text-rose-600 justify-right ">24/7</div>
+                  <div className="text-sm text-slate-500">Support</div>
+                </div>
                 
               </motion.div>
 
@@ -134,18 +138,8 @@ export function Home() {
                 transition={{ duration: 0.5, delay: 0.5 }}
                 className="mt-10 grid grid-cols-3 gap-4 border-t border-slate-200 pt-8"
               >
-                <div>
-                  <div className="text-2xl font-bold text-slate-900">500+</div>
-                  <div className="text-sm text-slate-500">Pharmacies</div>
-                </div>
-                <div>
-                  <div className="text-2xl font-bold text-slate-900">10k+</div>
-                  <div className="text-sm text-slate-500">Medicines</div>
-                </div>
-                <div>
-                  <div className="text-2xl font-bold text-slate-900">24/7</div>
-                  <div className="text-sm text-slate-500">Support</div>
-                </div>
+                
+               
               </motion.div>
             </div>
 
