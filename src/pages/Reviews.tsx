@@ -2,12 +2,12 @@ import { Star, CheckCircle2, Quote } from 'lucide-react';
 
 export function Reviews() {
   const reviews = [
-    { name: "Sarah Jenkins", role: "Patient", rating: 5, text: "MediLinkRx saved me so much time. I used to call 5 different pharmacies to find my asthma inhaler, now I just search and reserve it instantly." },
-    { name: "David Chen", role: "Patient", rating: 5, text: "The map feature is incredible. Found a 24/7 pharmacy at 2 AM when my daughter had a fever. Highly recommend this to everyone." },
-    { name: "City Pharmacy", role: "Partner", rating: 5, text: "As a pharmacy owner, the dashboard makes managing inventory and reservations a breeze. We've seen a 30% increase in new customers." },
-    { name: "Emily Rodriguez", role: "Patient", rating: 4, text: "Love the UI and how fast it works. The only thing I'd love to see is more pharmacies joining the network in my specific neighborhood." },
-    { name: "Michael T.", role: "Patient", rating: 5, text: "The verified reviews for medicines actually helped me choose a better generic brand. The community aspect is great." },
-    { name: "Dr. James Wilson", role: "Physician", rating: 5, text: "I now recommend MediLinkRx to all my patients so they can easily find where their prescriptions are in stock." },
+    { name: "usha sree", role: "Patient", rating: 5, text: "MediLinkRx saved me so much time. I used to call 5 different pharmacies to find my asthma inhaler, now I just search and reserve it instantly." },
+    { name: "mousumi", role: "Patient", rating: 5, text: "THANKYOU MEDILINKRX for providing such a great service! It really made my life easier." },
+    { name: "vanshika shankar ", role: "Partner", rating: 5, text: "As a pharmacy owner, the dashboard makes managing inventory and reservations a breeze. We've seen a 30% increase in new customers." },
+    { name: "Nandini nigam ", role: "Patient", rating: 4, text: "Love the UI and how fast it works. The only thing I'd love to see is more pharmacies joining the network in my specific neighborhood." },
+    { name: "nandini gupta", role: "Patient", rating: 5, text: "The verified reviews for medicines actually helped me choose a better generic brand. The community aspect is great." },
+    { name: "Dr.Clinton ", role: "Physician", rating: 5, text: "I now recommend MediLinkRx to all my patients so they can easily find where their prescriptions are in stock." },
   ];
 
   return (
