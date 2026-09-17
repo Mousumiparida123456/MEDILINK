@@ -13,11 +13,11 @@ export function About() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 mb-8">
             <div className="bg-emerald-50 p-6 rounded-2xl border border-emerald-100 flex-1">
-              <div className="text-3xl font-extrabold text-primary mb-2">500+</div>
+              <div className="text-3xl font-extrabold text-primary mb-2"></div>
               <div className="text-emerald-800 font-medium">Partner Pharmacies</div>
             </div>
             <div className="bg-blue-50 p-6 rounded-2xl border border-blue-100 flex-1">
-              <div className="text-3xl font-extrabold text-blue-600 mb-2">10k+</div>
+              <div className="text-3xl font-extrabold text-blue-600 mb-2"></div>
               <div className="text-blue-800 font-medium">Medicines Tracked</div>
             </div>
           </div>
