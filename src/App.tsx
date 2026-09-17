@@ -16,7 +16,6 @@ import { PharmacyDashboard } from './pages/PharmacyDashboard';
 import { AdminDashboard } from './pages/AdminDashboard';
 import { UserDashboard } from './pages/UserDashboard';
 import { ManagerDashboard } from './pages/ManagerDashboard';
-import { PrescriptionOptimizer } from './pages/PrescriptionOptimizer';
 import { EmergencyMode } from './pages/EmergencyMode';
 import { PrescriptionScanner } from './pages/PrescriptionScanner';
 import { AuthProvider } from './context/AuthContext';
@@ -55,7 +54,7 @@ function App() {
             <Route path="features" element={<ProtectedRoute><Features /></ProtectedRoute>} />
             <Route path="search" element={<ProtectedRoute><SearchMedicine /></ProtectedRoute>} />
             <Route path="find" element={<ProtectedRoute><FindMedicineWizard /></ProtectedRoute>} />
-            <Route path="optimizer" element={<ProtectedRoute><PrescriptionOptimizer /></ProtectedRoute>} />
+        
             <Route path="medicine/:id" element={<ProtectedRoute><MedicineDetails /></ProtectedRoute>} />
             <Route path="pharmacies" element={<ProtectedRoute><NearbyPharmacies /></ProtectedRoute>} />
             <Route path="reviews" element={<ProtectedRoute><Reviews /></ProtectedRoute>} />
