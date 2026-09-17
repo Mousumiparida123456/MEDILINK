@@ -116,12 +116,6 @@ export function UserDashboard() {
             >
               <Search className="w-4 h-4 text-primary" /> Find Medicine
             </Link>
-            <Link 
-              to="/optimizer" 
-              className="px-4 py-2.5 bg-primary hover:bg-primary-dark text-white font-bold rounded-xl text-sm transition-colors flex items-center gap-2 shadow-sm"
-            >
-              <Pill className="w-4 h-4" /> Prescription Optimizer
-            </Link>
             <button 
               onClick={handleLogout}
               className="px-4 py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold rounded-xl text-sm transition-colors flex items-center gap-2 border border-rose-100"
@@ -258,25 +252,14 @@ export function UserDashboard() {
                   </div>
                 </div>
 
-                {/* Quick Actions Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="bg-gradient-to-br from-emerald-500 to-teal-600 text-white p-6 rounded-3xl shadow-soft">
-                    <Pill className="w-8 h-8 mb-4 opacity-90" />
-                    <h3 className="text-xl font-bold mb-1">Need a Medicine Refill?</h3>
-                    <p className="text-xs text-emerald-100 mb-6">Search real-time stock across 500+ verified pharmacies in your local area.</p>
-                    <Link to="/find" className="inline-flex items-center gap-2 px-4 py-2.5 bg-white text-emerald-800 font-bold rounded-xl text-xs hover:bg-emerald-50 transition-colors shadow-sm">
-                      Search Pharmacies <ChevronRight className="w-4 h-4" />
-                    </Link>
-                  </div>
-
-                  <div className="bg-gradient-to-br from-blue-600 to-indigo-700 text-white p-6 rounded-3xl shadow-soft">
-                    <Activity className="w-8 h-8 mb-4 opacity-90" />
-                    <h3 className="text-xl font-bold mb-1">Prescription Route Optimizer</h3>
-                    <p className="text-xs text-blue-100 mb-6">Calculate the cheapest & fastest route to collect all your prescribed medications.</p>
-                    <Link to="/optimizer" className="inline-flex items-center gap-2 px-4 py-2.5 bg-white text-blue-900 font-bold rounded-xl text-xs hover:bg-blue-50 transition-colors shadow-sm">
-                      Run Optimizer <ChevronRight className="w-4 h-4" />
-                    </Link>
-                  </div>
+                {/* Quick Actions */}
+                <div className="bg-gradient-to-br from-emerald-500 to-teal-600 text-white p-6 rounded-3xl shadow-soft">
+                  <Pill className="w-8 h-8 mb-4 opacity-90" />
+                  <h3 className="text-xl font-bold mb-1">Need a Medicine Refill?</h3>
+                  <p className="text-xs text-emerald-100 mb-6">Search real-time stock across 500+ verified pharmacies in your local area.</p>
+                  <Link to="/find" className="inline-flex items-center gap-2 px-4 py-2.5 bg-white text-emerald-800 font-bold rounded-xl text-xs hover:bg-emerald-50 transition-colors shadow-sm">
+                    Search Pharmacies <ChevronRight className="w-4 h-4" />
+                  </Link>
                 </div>
 
               </div>
