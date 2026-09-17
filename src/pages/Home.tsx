@@ -27,19 +27,19 @@ const faqs = [
 // Testimonials Data
 const testimonials = [
   {
-    name: 'Sarah Jenkins',
+    name: 'Jhunarani Parida',
     role: 'Mother of two',
     text: 'When my son had a fever at 2 AM, MediLinkRx helped me find the only 24/7 pharmacy that had his specific pediatric medicine in stock. An absolute lifesaver!',
     rating: 5,
   },
   {
-    name: 'David Chen',
+    name: ' T challa',
     role: 'Chronic Patient',
-    text: 'I used to spend hours calling different pharmacies for my monthly refills. Now I just search on MediLinkRx and know exactly where to go within seconds.',
+    text: 'I used to spend hours calling different pharmacies for my monthly refills. Now I just search on MediLinkRx and know exactly where to go within seconds.And really helped me fighting in avengers endgame with Thanos ',
     rating: 5,
   },
   {
-    name: 'Dr. Emily Ross',
+    name: 'Natasha Romanoff',
     role: 'General Practitioner',
     text: 'I recommend MediLinkRx to all my patients. It reduces their anxiety about finding prescribed medications, especially during shortages.',
     rating: 5,
