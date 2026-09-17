@@ -17,7 +17,7 @@ import { AdminDashboard } from './pages/AdminDashboard';
 import { UserDashboard } from './pages/UserDashboard';
 import { ManagerDashboard } from './pages/ManagerDashboard';
 import { EmergencyMode } from './pages/EmergencyMode';
-import { PrescriptionScanner } from './pages/PrescriptionScanner';
+
 import { AuthProvider } from './context/AuthContext';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import { Toaster } from 'react-hot-toast';
@@ -60,7 +60,6 @@ function App() {
             <Route path="reviews" element={<ProtectedRoute><Reviews /></ProtectedRoute>} />
             <Route path="contact" element={<ProtectedRoute><Contact /></ProtectedRoute>} />
             <Route path="emergency" element={<ProtectedRoute><EmergencyMode /></ProtectedRoute>} />
-            <Route path="scanner" element={<ProtectedRoute><PrescriptionScanner /></ProtectedRoute>} />
 
             {/* Public Authentication Pages */}
             <Route path="login" element={<Login />} />

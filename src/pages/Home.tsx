@@ -1,4 +1,4 @@
-import { Search, Phone, MapPin, Clock, ShieldCheck, Star, ChevronDown, ChevronUp, Pill, HeartPulse, Activity, Scan } from 'lucide-react';
+import { Search, Phone, MapPin, Clock, ShieldCheck, Star, ChevronDown, ChevronUp, Pill, HeartPulse, Activity } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -124,10 +124,7 @@ export function Home() {
                   <Phone className="h-5 w-5" />
                   Emergency Medicine Mode 🔴
                 </Link>
-                <Link to="/scanner" className="flex items-center justify-center gap-2 text-blue-600 bg-blue-50 hover:bg-blue-100 px-6 py-3 rounded-xl font-bold transition-colors border border-blue-200 shadow-sm">
-                  <Scan className="h-5 w-5" />
-                  Prescription Scanner 📷
-                </Link>
+                
               </motion.div>
 
               {/* Animated Statistics */}
