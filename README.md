@@ -8,6 +8,11 @@ The platform addresses the problem of medicine availability discovery by allowin
 
 ---
 
+### Live Application
+
+https://medilink-tawny-gamma.vercel.app/
+
+
 # 🧩 Problem Statement
 
 Traditional medicine purchasing often follows a trial-and-error workflow:
@@ -585,9 +590,7 @@ The application will be available at the local development URL displayed in the 
 
 MediLinkRx is deployed using **Vercel**.
 
-### Live Application
 
-https://medilink-tawny-gamma.vercel.app/
 
 ---
 
