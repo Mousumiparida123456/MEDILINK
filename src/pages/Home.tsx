@@ -128,7 +128,7 @@ export function Home() {
                   <div className="text-2xl font-bold text-rose-600 justify-right ">24/7</div>
                   <div className="text-sm text-slate-500">Support</div>
                 </div>
-                
+  
               </motion.div>
 
               {/* Animated Statistics */}
