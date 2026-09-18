@@ -14,6 +14,11 @@ const users = [
   { id: '3', name: 'System Administrator', email: 'admin@medilink.com', password: 'password', role: 'admin', phone: '+1 (555) 999-0000' },
 ];
 
+const mockPharmacies = [
+  { licenceNumber: '20/MP/123456', pharmacyName: 'ABC Medical Store', state: 'Madhya Pradesh', status: 'verified' },
+  { licenceNumber: '20/MP/789012', pharmacyName: 'City Care Pharmacy', state: 'Madhya Pradesh', status: 'verified' },
+];
+
 const medicines = [
   {
     _id: 'med_1',
@@ -59,10 +64,28 @@ app.get('/', (req, res) => {
 });
 
 // Auth Routes
+app.post('/api/pharmacies/verify', (req, res) => {
+  const licenceNumber = (req.body.licenceNumber || '').trim().toUpperCase();
+  const pharmacy = mockPharmacies.find((item) => item.licenceNumber === licenceNumber);
+
+  if (!pharmacy) {
+    return res.status(404).json({ error: 'Pharmacy could not be verified. Please check your Drug Licence Number.' });
+  }
+
+  res.json(pharmacy);
+});
+
 app.post('/api/auth/register', (req, res) => {
-  const { name, email, password, role, phone } = req.body;
+  const { name, email, password, role, phone, licenceNumber } = req.body;
   if (!name || !email || !password) {
     return res.status(400).json({ error: 'Name, email, and password are required' });
+  }
+
+  if (role === 'manager') {
+    const pharmacy = mockPharmacies.find((item) => item.licenceNumber === (licenceNumber || '').trim().toUpperCase());
+    if (!pharmacy) {
+      return res.status(400).json({ error: 'A valid pharmacy licence is required for Manager Accounts.' });
+    }
   }
 
   const existing = users.find(u => u.email.toLowerCase() === email.toLowerCase());
