@@ -1,8 +1,15 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Pill, Mail, Lock, User as UserIcon, ArrowRight, Loader2, Phone, Eye, EyeOff, ShieldCheck, UserCheck, AlertCircle } from 'lucide-react';
+import { Pill, Mail, Lock, User as UserIcon, ArrowRight, Loader2, Phone, Eye, EyeOff, ShieldCheck, UserCheck, AlertCircle, CheckCircle2, Upload } from 'lucide-react';
 import { useAuth, DEMO_USERS, type UserRole } from '../context/AuthContext';
 import toast from 'react-hot-toast';
+
+const mockPharmacies = [
+  { licenceNumber: '20/MP/123456', pharmacyName: 'ABC Medical Store', state: 'Madhya Pradesh', status: 'verified' },
+  { licenceNumber: '20/MP/789012', pharmacyName: 'City Care Pharmacy', state: 'Madhya Pradesh', status: 'verified' },
+];
+
+type PharmacyVerification = typeof mockPharmacies[number];
 
 export function Register() {
   const [formData, setFormData] = useState({
@@ -10,15 +17,61 @@ export function Register() {
     email: '',
     phone: '',
     password: '',
-    role: 'user' as UserRole
+    role: 'user' as UserRole,
+    pharmacyName: '',
+    licenceNumber: '',
+    licenceType: 'Form 20',
+    pharmacistName: '',
+    pharmacistRegistrationNumber: '',
+    licenceFileName: ''
   });
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [pharmacyVerification, setPharmacyVerification] = useState<PharmacyVerification | null>(null);
   
   const navigate = useNavigate();
   const { login } = useAuth();
+
+  const verifyPharmacy = async () => {
+    const licenceNumber = formData.licenceNumber.trim().toUpperCase();
+    if (!licenceNumber) {
+      setError('Please enter your Drug Licence Number first.');
+      return;
+    }
+
+    setLoading(true);
+    setError('');
+    setPharmacyVerification(null);
+    const apiUrl = import.meta.env.VITE_API_URL;
+
+    try {
+      let verifiedPharmacy: PharmacyVerification | null = null;
+      if (apiUrl && apiUrl !== 'undefined') {
+        const res = await fetch(`${apiUrl}/api/pharmacies/verify`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ licenceNumber }),
+        });
+        if (res.ok) verifiedPharmacy = await res.json();
+        else if (res.status !== 404) throw new Error('Pharmacy could not be verified. Please check your Drug Licence Number.');
+      }
+
+      verifiedPharmacy ||= mockPharmacies.find((pharmacy) => pharmacy.licenceNumber === licenceNumber) || null;
+      if (!verifiedPharmacy) {
+        throw new Error('Pharmacy could not be verified. Please check your Drug Licence Number.');
+      }
+
+      setPharmacyVerification(verifiedPharmacy);
+      setFormData((current) => ({ ...current, licenceNumber }));
+      toast.success('Pharmacy verified');
+    } catch (err: any) {
+      setError(err.message || 'Pharmacy verification failed.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,6 +89,12 @@ export function Register() {
 
     if (formData.password.length < 6) {
       setError('Password must be at least 6 characters long.');
+      setLoading(false);
+      return;
+    }
+
+    if (formData.role === 'manager' && !pharmacyVerification) {
+      setError('Please verify your pharmacy before creating a Manager Account.');
       setLoading(false);
       return;
     }
@@ -103,6 +162,15 @@ export function Register() {
           phone: formData.phone.trim() || '+1 (555) 000-0000',
           role: formData.role,
           password: formData.password,
+          ...(formData.role === 'manager' ? {
+            pharmacyName: formData.pharmacyName.trim(),
+            licenceNumber: formData.licenceNumber.trim().toUpperCase(),
+            licenceType: formData.licenceType,
+            pharmacistName: formData.pharmacistName.trim(),
+            pharmacistRegistrationNumber: formData.pharmacistRegistrationNumber.trim(),
+            licenceFileName: formData.licenceFileName,
+            pharmacyVerification: 'verified',
+          } : {}),
         };
 
         localUsers.push(newUser);
@@ -266,6 +334,65 @@ export function Register() {
               />
             </div>
           </div>
+
+          {formData.role === 'manager' && (
+            <section className="space-y-4 rounded-2xl border border-blue-100 bg-blue-50/50 p-4">
+              <div>
+                <h3 className="text-sm font-extrabold uppercase tracking-wider text-secondary">Pharmacy Verification</h3>
+                <p className="mt-1 text-xs text-slate-500">Verify your retail drug licence to continue.</p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-1">Pharmacy Name</label>
+                <input type="text" required value={formData.pharmacyName} onChange={(e) => setFormData({ ...formData, pharmacyName: e.target.value })} className="block w-full rounded-xl border border-slate-200 py-3 px-3 text-sm" placeholder="ABC Medical Store" />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-1">Drug Licence Number</label>
+                <input type="text" required value={formData.licenceNumber} onChange={(e) => { setFormData({ ...formData, licenceNumber: e.target.value }); setPharmacyVerification(null); }} className="block w-full rounded-xl border border-slate-200 py-3 px-3 text-sm" placeholder="20/MP/123456" />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-1">Licence Type</label>
+                <select value={formData.licenceType} onChange={(e) => setFormData({ ...formData, licenceType: e.target.value })} className="block w-full rounded-xl border border-slate-200 bg-white py-3 px-3 text-sm">
+                  <option>Form 20</option>
+                  <option>Form 21</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-1">Registered Pharmacist Name</label>
+                <input type="text" required value={formData.pharmacistName} onChange={(e) => setFormData({ ...formData, pharmacistName: e.target.value })} className="block w-full rounded-xl border border-slate-200 py-3 px-3 text-sm" placeholder="Ravi Kumar" />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-1">Pharmacist Registration Number</label>
+                <input type="text" required value={formData.pharmacistRegistrationNumber} onChange={(e) => setFormData({ ...formData, pharmacistRegistrationNumber: e.target.value })} className="block w-full rounded-xl border border-slate-200 py-3 px-3 text-sm" placeholder="MP/PH/12345" />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-1">Upload Drug Licence</label>
+                <label className="flex cursor-pointer items-center gap-2 rounded-xl border border-dashed border-slate-300 bg-white px-3 py-3 text-sm text-slate-600 hover:border-secondary">
+                  <Upload className="h-4 w-4" />
+                  <span>{formData.licenceFileName || 'Choose File'}</span>
+                  <input type="file" accept=".pdf,.jpg,.jpeg,.png" className="sr-only" onChange={(e) => setFormData({ ...formData, licenceFileName: e.target.files?.[0]?.name || '' })} />
+                </label>
+              </div>
+
+              <button type="button" onClick={verifyPharmacy} disabled={loading} className="flex w-full items-center justify-center gap-2 rounded-xl bg-secondary px-4 py-3 text-sm font-bold text-white transition-colors hover:bg-blue-700 disabled:opacity-70">
+                {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ShieldCheck className="h-4 w-4" />} Verify Pharmacy
+              </button>
+
+              {pharmacyVerification && (
+                <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-800">
+                  <div className="flex items-center gap-2 font-bold"><CheckCircle2 className="h-5 w-5" /> Pharmacy Verified</div>
+                  <p className="mt-2">{pharmacyVerification.pharmacyName}<br />{pharmacyVerification.state}</p>
+                  <p className="mt-2">Drug Licence: {pharmacyVerification.licenceNumber}</p>
+                  <p className="mt-2 font-semibold">You can now create your Manager Account.</p>
+                </div>
+              )}
+            </section>
+          )}
 
           {/* Password */}
           <div>
