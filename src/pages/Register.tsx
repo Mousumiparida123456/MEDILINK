@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Pill, Mail, Lock, User as UserIcon, ArrowRight, Loader2, Phone, Eye, EyeOff, ShieldCheck, UserCheck, AlertCircle, CheckCircle2, Upload } from 'lucide-react';
-import { useAuth, DEMO_USERS, type UserRole } from '../context/AuthContext';
+import { type UserRole } from '../context/AuthContext';
+import { supabase } from '../lib/supabase';
 import toast from 'react-hot-toast';
 
 const mockPharmacies = [
@@ -32,7 +33,6 @@ export function Register() {
   const [pharmacyVerification, setPharmacyVerification] = useState<PharmacyVerification | null>(null);
   
   const navigate = useNavigate();
-  const { login } = useAuth();
 
   const verifyPharmacy = async () => {
     const licenceNumber = formData.licenceNumber.trim().toUpperCase();
@@ -93,113 +93,34 @@ export function Register() {
       return;
     }
 
-    if (formData.role === 'manager' && !pharmacyVerification) {
-      setError('Please verify your pharmacy before creating a Manager Account.');
+    if (formData.role !== 'user') {
+      setError('Manager accounts require administrator approval after pharmacy verification. Please contact MediLink support.');
       setLoading(false);
       return;
     }
 
     try {
-      // 1. Check if email already exists in DEMO_USERS
-      const demoExists = Object.values(DEMO_USERS).some(
-        (d) => d.email.toLowerCase() === trimmedEmail
-      );
-      if (demoExists) {
-        setError('An account with this email address already exists. Please click Sign In to log in.');
-        toast.error('Account already exists');
-        setLoading(false);
-        return;
+      const { data, error: signUpError } = await supabase.auth.signUp({
+        email: trimmedEmail,
+        password: formData.password,
+        options: {
+          data: {
+            name: formData.name.trim(),
+            phone: formData.phone.trim(),
+          },
+        },
+      });
+
+      if (signUpError) throw signUpError;
+
+      if (data.session) {
+        setSuccess(`Account created successfully! Welcome to MediLinkRx, ${formData.name.trim()}.`);
+        toast.success('Registration successful!');
+        navigate('/user/dashboard', { replace: true });
+      } else {
+        setSuccess('Account created. Check your email to confirm your address, then sign in.');
+        toast.success('Check your email to confirm your account.');
       }
-
-      // 2. Check if email already exists in medilink_local_users
-      const localUsersStr = localStorage.getItem('medilink_local_users') || '[]';
-      let localUsers: any[] = [];
-      try {
-        localUsers = JSON.parse(localUsersStr);
-      } catch {
-        localUsers = [];
-      }
-
-      const existingLocal = localUsers.find((u: any) => u.email.toLowerCase() === trimmedEmail);
-      if (existingLocal) {
-        setError('An account with this email address already exists. Please click Sign In to log in.');
-        toast.error('Account already exists');
-        setLoading(false);
-        return;
-      }
-
-      // 3. Attempt Remote API call if backend is available
-      let userData: any = null;
-      let tokenStr = '';
-      const apiUrl = import.meta.env.VITE_API_URL;
-      
-      if (apiUrl && apiUrl !== 'undefined') {
-        try {
-          const res = await fetch(`${apiUrl}/api/auth/register`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ ...formData, email: trimmedEmail }),
-          });
-
-          if (res.ok) {
-            const data = await res.json();
-            if (data.user && data.token) {
-              userData = data.user;
-              tokenStr = data.token;
-            }
-          }
-        } catch (netErr) {
-          console.warn('Backend server offline. Proceeding with local client database registration.');
-        }
-      }
-
-      // 4. Save to local storage if API didn't process
-      if (!userData) {
-        const newUser = {
-          id: `user_${Date.now()}`,
-          name: formData.name.trim(),
-          email: trimmedEmail,
-          phone: formData.phone.trim() || '+1 (555) 000-0000',
-          role: formData.role,
-          password: formData.password,
-          ...(formData.role === 'manager' ? {
-            pharmacyName: formData.pharmacyName.trim(),
-            licenceNumber: formData.licenceNumber.trim().toUpperCase(),
-            licenceType: formData.licenceType,
-            pharmacistName: formData.pharmacistName.trim(),
-            pharmacistRegistrationNumber: formData.pharmacistRegistrationNumber.trim(),
-            licenceFileName: formData.licenceFileName,
-            pharmacyVerification: 'verified',
-          } : {}),
-        };
-
-        localUsers.push(newUser);
-        localStorage.setItem('medilink_local_users', JSON.stringify(localUsers));
-
-        userData = { 
-          id: newUser.id, 
-          name: newUser.name, 
-          email: newUser.email, 
-          role: newUser.role, 
-          phone: newUser.phone 
-        };
-        tokenStr = `token_local_${Date.now()}`;
-      }
-
-      setSuccess(`Account created successfully! Welcome to MediLinkRx, ${userData.name}.`);
-      toast.success('Registration successful!');
-
-      // Authenticate newly registered user and navigate to appropriate dashboard
-      login(tokenStr, userData);
-
-      setTimeout(() => {
-        if (userData.role === 'manager' || userData.role === 'pharmacy' || userData.role === 'admin') {
-          navigate('/manager/dashboard', { replace: true });
-        } else {
-          navigate('/user/dashboard', { replace: true });
-        }
-      }, 1000);
-
     } catch (err: any) {
       setError(err.message || 'An unexpected error occurred during account registration.');
       toast.error('Registration failed');

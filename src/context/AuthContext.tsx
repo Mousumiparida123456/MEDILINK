@@ -1,4 +1,6 @@
-import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+import type { Session } from '@supabase/supabase-js';
+import { supabase } from '../lib/supabase';
 
 export type UserRole = 'user' | 'manager' | 'pharmacy' | 'admin';
 
@@ -13,103 +15,78 @@ export interface User {
 interface AuthContextType {
   user: User | null;
   token: string | null;
-  login: (token: string, user: User) => void;
-  logout: () => void;
+  logout: () => Promise<void>;
   isAuthenticated: boolean;
+  isLoading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const validRoles: UserRole[] = ['user', 'manager', 'pharmacy', 'admin'];
 
-export const DEMO_USERS: Record<string, User & { password: string }> = {
-  user: {
-    id: 'demo_user_1',
-    name: 'Sarah Jenkins (Patient)',
-    email: 'user@medilink.com',
-    password: 'user123',
-    role: 'user',
-    phone: '+1 (555) 019-2834',
-  },
-  patient_alt: {
-    id: 'demo_user_2',
-    name: 'Om Kumar',
-    email: 'patient@medilink.com',
-    password: 'patient123',
-    role: 'user',
-    phone: '+1 (555) 019-2834',
-  },
-  manager: {
-    id: 'demo_manager_1',
-    name: 'Alex Rivera (Platform Manager)',
-    email: 'manager@medilink.com',
-    password: 'manager123',
-    role: 'manager',
-    phone: '+1 (555) 890-1234',
-  },
-  admin: {
-    id: 'demo_admin_1',
-    name: 'System Administrator',
-    email: 'admin@medilink.com',
-    password: 'admin123',
-    role: 'admin',
-    phone: '+1 (555) 999-0000',
-  },
-  pharmacy: {
-    id: 'demo_pharmacy_1',
-    name: 'City Central Pharmacy Manager',
-    email: 'pharmacy@medilink.com',
-    password: 'pharmacy123',
-    role: 'pharmacy',
-    phone: '+1 (555) 890-5678',
-  }
-};
+async function toAppUser(session: Session): Promise<User> {
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('name, role, phone')
+    .eq('id', session.user.id)
+    .maybeSingle();
+
+  const role = validRoles.includes(profile?.role as UserRole)
+    ? profile!.role as UserRole
+    : 'user';
+
+  return {
+    id: session.user.id,
+    email: session.user.email ?? '',
+    name: profile?.name || session.user.user_metadata?.name || session.user.email || 'MediLink User',
+    role,
+    phone: profile?.phone || session.user.user_metadata?.phone,
+  };
+}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Clear old persistent localStorage sessions so every fresh visit forces the Login page first
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    localStorage.removeItem('medilink_session');
+    let active = true;
 
-    // Restore session ONLY from current active tab (sessionStorage) if present
-    const storedToken = sessionStorage.getItem('token');
-    const storedUser = sessionStorage.getItem('user');
-
-    if (storedToken && storedUser) {
-      try {
-        const parsedUser = JSON.parse(storedUser);
-        if (storedToken.length > 5 && parsedUser && parsedUser.id && parsedUser.role && parsedUser.email) {
-          setToken(storedToken);
-          setUser(parsedUser);
-        } else {
-          sessionStorage.clear();
+    const applySession = async (session: Session | null) => {
+      if (!session) {
+        if (active) {
+          setToken(null);
+          setUser(null);
+          setIsLoading(false);
         }
-      } catch {
-        sessionStorage.clear();
+        return;
       }
-    } else {
-      sessionStorage.clear();
-    }
+
+      const appUser = await toAppUser(session);
+      if (active) {
+        setToken(session.access_token);
+        setUser(appUser);
+        setIsLoading(false);
+      }
+    };
+
+    void supabase.auth.getSession().then(({ data }) => applySession(data.session));
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      void applySession(session);
+    });
+
+    return () => {
+      active = false;
+      listener.subscription.unsubscribe();
+    };
   }, []);
 
-  const login = (newToken: string, newUser: User) => {
-    setToken(newToken);
-    setUser(newUser);
-    sessionStorage.setItem('token', newToken);
-    sessionStorage.setItem('user', JSON.stringify(newUser));
-  };
-
-  const logout = () => {
-    setToken(null);
-    setUser(null);
-    localStorage.clear();
-    sessionStorage.clear();
+  const logout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) throw error;
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, login, logout, isAuthenticated: !!token && !!user }}>
+    <AuthContext.Provider value={{ user, token, logout, isAuthenticated: !!token && !!user, isLoading }}>
       {children}
     </AuthContext.Provider>
   );
@@ -122,5 +99,3 @@ export const useAuth = () => {
   }
   return context;
 };
-
-

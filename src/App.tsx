@@ -27,7 +27,11 @@ import { Toaster } from 'react-hot-toast';
 import { useAuth } from './context/AuthContext';
 
 function RootRedirect() {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, isLoading } = useAuth();
+
+  if (isLoading) {
+    return <div className="p-20 text-center font-semibold text-slate-600">Checking your session...</div>;
+  }
 
   if (!isAuthenticated || !user) {
     return <Navigate to="/login" replace />;

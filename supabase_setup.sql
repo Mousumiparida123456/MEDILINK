@@ -32,7 +32,7 @@ BEGIN
     NEW.id,
     NEW.email,
     COALESCE(NEW.raw_user_meta_data->>'name', NEW.raw_user_meta_data->>'full_name', 'MediLink User'),
-    COALESCE(NEW.raw_user_meta_data->>'role', 'user'),
+    'user',
     NULL,
     NULL,
     COALESCE(NEW.raw_user_meta_data->>'phone', '')
@@ -42,7 +42,9 @@ BEGIN
     updated_at = NOW();
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = '';
+
+REVOKE EXECUTE ON FUNCTION public.handle_new_user() FROM PUBLIC;
 
 DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 CREATE TRIGGER on_auth_user_created
@@ -146,13 +148,16 @@ ALTER TABLE public.reviews ENABLE ROW LEVEL SECURITY;
 
 -- Profiles Policies
 DROP POLICY IF EXISTS "Allow authenticated read profile" ON public.profiles;
-CREATE POLICY "Allow authenticated read profile" ON public.profiles FOR SELECT USING (auth.uid() = id);
+CREATE POLICY "Allow authenticated read profile" ON public.profiles FOR SELECT TO authenticated USING ((select auth.uid()) = id);
 
 DROP POLICY IF EXISTS "Allow authenticated insert profile" ON public.profiles;
-CREATE POLICY "Allow authenticated insert profile" ON public.profiles FOR INSERT WITH CHECK (auth.uid() = id);
+CREATE POLICY "Allow authenticated insert profile" ON public.profiles FOR INSERT TO authenticated WITH CHECK ((select auth.uid()) = id);
 
 DROP POLICY IF EXISTS "Allow authenticated update profile" ON public.profiles;
-CREATE POLICY "Allow authenticated update profile" ON public.profiles FOR UPDATE USING (auth.uid() = id);
+CREATE POLICY "Allow authenticated update profile" ON public.profiles FOR UPDATE TO authenticated USING ((select auth.uid()) = id) WITH CHECK ((select auth.uid()) = id);
+
+REVOKE UPDATE ON public.profiles FROM authenticated;
+GRANT UPDATE (name, phone) ON public.profiles TO authenticated;
 
 -- Public Read for Catalog Data (Pharmacies, Medicines, Inventory)
 DROP POLICY IF EXISTS "Allow public read pharmacies" ON public.pharmacies;
