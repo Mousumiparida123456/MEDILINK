@@ -127,15 +127,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     let assignedName = name || 'Demo User';
 
     const lower = email.toLowerCase().trim();
-    if (lower.includes('pharmacy') || lower.includes('manager')) {
-      assignedRole = 'manager';
-      assignedName = 'City Central Pharmacy';
-    } else if (lower.includes('admin')) {
-      assignedRole = 'admin';
-      assignedName = 'System Administrator';
-    } else if (lower.includes('patient') || lower.includes('sarah') || lower.includes('mousumi')) {
-      assignedRole = 'user';
-      assignedName = name || 'Mousumi Parida (Patient)';
+    if (!role) {
+      if (lower.includes('pharmacy') || lower.includes('manager')) {
+        assignedRole = 'manager';
+        assignedName = 'City Central Pharmacy';
+      } else if (lower.includes('admin')) {
+        assignedRole = 'admin';
+        assignedName = 'System Administrator';
+      } else if (lower.includes('patient') || lower.includes('sarah') || lower.includes('mousumi')) {
+        assignedRole = 'user';
+        assignedName = name || 'Mousumi Parida (Patient)';
+      }
     }
 
     const demoUser: User = {
