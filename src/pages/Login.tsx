@@ -45,7 +45,12 @@ export function Login() {
 
     // Direct demo login when Supabase URL is unconfigured / placeholder to avoid 'Failed to fetch'
     if (!isSupabaseConfigured) {
-      const demoUser = loginDemo(trimmedEmail, loginRole);
+      if (loginRole === 'manager') {
+        setError('Manager sign-in requires a configured Supabase account with administrator-approved credentials.');
+        setLoading(false);
+        return;
+      }
+      const demoUser = loginDemo(trimmedEmail);
       setSuccess(`Signed in as ${demoUser.name}`);
       toast.success(`Welcome back, ${demoUser.name}!`);
       const destPath = (demoUser.role === 'manager' || demoUser.role === 'admin' || demoUser.role === 'pharmacy')

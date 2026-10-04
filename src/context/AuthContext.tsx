@@ -16,7 +16,7 @@ interface AuthContextType {
   user: User | null;
   token: string | null;
   logout: () => Promise<void>;
-  loginDemo: (email: string, role?: UserRole, name?: string) => User;
+  loginDemo: (email: string, name?: string) => User;
   isAuthenticated: boolean;
   isLoading: boolean;
 }
@@ -63,36 +63,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     let active = true;
 
-    // Check local demo session first
-    try {
-      const storedDemo = localStorage.getItem(DEMO_SESSION_KEY);
-      if (storedDemo) {
-        const parsed = JSON.parse(storedDemo);
-        if (parsed && parsed.user && parsed.token) {
-          setUser(parsed.user);
-          setToken(parsed.token);
-          setIsLoading(false);
-          return;
-        }
-      }
-    } catch (err) {
-      console.warn('Failed reading demo session from localStorage:', err);
-    }
-
-    // Skip network calls to Supabase if project is unconfigured
     if (!isSupabaseConfigured) {
+      try {
+        const storedDemo = localStorage.getItem(DEMO_SESSION_KEY);
+        if (storedDemo) {
+          const parsed = JSON.parse(storedDemo);
+          if (parsed && parsed.user && parsed.token) {
+            const demoUser = { ...parsed.user, role: 'user' as const };
+            setUser(demoUser);
+            setToken(parsed.token);
+          }
+        }
+      } catch (err) {
+        console.warn('Failed reading demo session from localStorage:', err);
+      }
+
       setIsLoading(false);
       return;
+    }
+
+    try {
+      localStorage.removeItem(DEMO_SESSION_KEY);
+    } catch (err) {
+      console.warn('Failed removing demo session while Supabase is configured:', err);
     }
 
     const applySession = async (session: Session | null) => {
       if (!session) {
         if (active) {
-          const storedDemo = localStorage.getItem(DEMO_SESSION_KEY);
-          if (!storedDemo) {
-            setToken(null);
-            setUser(null);
-          }
+          setToken(null);
+          setUser(null);
           setIsLoading(false);
         }
         return;
@@ -122,29 +122,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  const loginDemo = (email: string, role?: UserRole, name?: string): User => {
-    let assignedRole: UserRole = role || 'user';
-    let assignedName = name || 'Demo User';
-
+  const loginDemo = (email: string, name?: string): User => {
     const lower = email.toLowerCase().trim();
-    if (!role) {
-      if (lower.includes('pharmacy') || lower.includes('manager')) {
-        assignedRole = 'manager';
-        assignedName = 'City Central Pharmacy';
-      } else if (lower.includes('admin')) {
-        assignedRole = 'admin';
-        assignedName = 'System Administrator';
-      } else if (lower.includes('patient') || lower.includes('sarah') || lower.includes('mousumi')) {
-        assignedRole = 'user';
-        assignedName = name || 'Mousumi Parida (Patient)';
-      }
-    }
 
     const demoUser: User = {
       id: `demo_${Date.now()}`,
       email: lower,
-      name: assignedName,
-      role: assignedRole,
+      name: name || 'Demo User',
+      role: 'user',
       phone: '+1 (555) 019-2834',
     };
 

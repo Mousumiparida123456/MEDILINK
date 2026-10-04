@@ -1,16 +1,9 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Pill, Mail, Lock, User as UserIcon, ArrowRight, Loader2, Phone, Eye, EyeOff, ShieldCheck, UserCheck, AlertCircle, CheckCircle2, Upload } from 'lucide-react';
-import { type UserRole } from '../context/AuthContext';
-import { supabase } from '../lib/supabase';
+import { Pill, Mail, Lock, User as UserIcon, ArrowRight, Loader2, Phone, Eye, EyeOff, ShieldCheck, UserCheck, AlertCircle } from 'lucide-react';
+import { type UserRole, useAuth } from '../context/AuthContext';
+import { isSupabaseConfigured, supabase } from '../lib/supabase';
 import toast from 'react-hot-toast';
-
-const mockPharmacies = [
-  { licenceNumber: '20/MP/123456', pharmacyName: 'ABC Medical Store', state: 'Madhya Pradesh', status: 'verified' },
-  { licenceNumber: '20/MP/789012', pharmacyName: 'City Care Pharmacy', state: 'Madhya Pradesh', status: 'verified' },
-];
-
-type PharmacyVerification = typeof mockPharmacies[number];
 
 export function Register() {
   const [formData, setFormData] = useState({
@@ -23,55 +16,14 @@ export function Register() {
     licenceNumber: '',
     licenceType: 'Form 20',
     pharmacistName: '',
-    pharmacistRegistrationNumber: '',
-    licenceFileName: ''
+    pharmacistRegistrationNumber: ''
   });
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const [pharmacyVerification, setPharmacyVerification] = useState<PharmacyVerification | null>(null);
-  
   const navigate = useNavigate();
-
-  const verifyPharmacy = async () => {
-    const licenceNumber = formData.licenceNumber.trim().toUpperCase();
-    if (!licenceNumber) {
-      setError('Please enter your Drug Licence Number first.');
-      return;
-    }
-
-    setLoading(true);
-    setError('');
-    setPharmacyVerification(null);
-    const apiUrl = import.meta.env.VITE_API_URL;
-
-    try {
-      let verifiedPharmacy: PharmacyVerification | null = null;
-      if (apiUrl && apiUrl !== 'undefined') {
-        const res = await fetch(`${apiUrl}/api/pharmacies/verify`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ licenceNumber }),
-        });
-        if (res.ok) verifiedPharmacy = await res.json();
-        else if (res.status !== 404) throw new Error('Pharmacy could not be verified. Please check your Drug Licence Number.');
-      }
-
-      verifiedPharmacy ||= mockPharmacies.find((pharmacy) => pharmacy.licenceNumber === licenceNumber) || null;
-      if (!verifiedPharmacy) {
-        throw new Error('Pharmacy could not be verified. Please check your Drug Licence Number.');
-      }
-
-      setPharmacyVerification(verifiedPharmacy);
-      setFormData((current) => ({ ...current, licenceNumber }));
-      toast.success('Pharmacy verified');
-    } catch (err: any) {
-      setError(err.message || 'Pharmacy verification failed.');
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { loginDemo } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -94,17 +46,27 @@ export function Register() {
     }
 
     if (formData.role === 'manager') {
-    if (!formData.pharmacyName || !formData.licenceNumber || !formData.pharmacistName || !formData.pharmacistRegistrationNumber) {
-      setError('Please complete all pharmacy verification details before creating a manager account.');
-      setLoading(false);
-      return;
+      if (!formData.pharmacyName || !formData.licenceNumber || !formData.pharmacistName || !formData.pharmacistRegistrationNumber) {
+        setError('Please complete all pharmacy verification details before creating a manager account.');
+        setLoading(false);
+        return;
+      }
+
     }
 
-    if (!pharmacyVerification) {
-      setError('Please verify your pharmacy licence before creating a manager account.');
+    if (!isSupabaseConfigured) {
+      if (formData.role === 'manager') {
+        setError('Manager applications require Supabase. Configure the Supabase URL and publishable key before submitting.');
+        setLoading(false);
+        return;
+      }
+      const demoUser = loginDemo(trimmedEmail, formData.name.trim());
+      const destination = demoUser.role === 'manager' ? '/manager/dashboard' : '/user/dashboard';
+      setSuccess(`Demo account created for ${demoUser.name}. Configure Supabase to create a real account.`);
+      toast.success('Demo account created');
+      navigate(destination, { replace: true });
       setLoading(false);
       return;
-    }
     }
 
     try {
@@ -115,9 +77,12 @@ export function Register() {
           data: {
             name: formData.name.trim(),
             phone: formData.phone.trim(),
-            role: formData.role,
-            pharmacyName: formData.pharmacyName.trim(),
-            licenceNumber: formData.licenceNumber.trim(),
+            requested_role: formData.role,
+            pharmacy_name: formData.pharmacyName.trim(),
+            drug_licence_number: formData.licenceNumber.trim(),
+            licence_type: formData.licenceType,
+            pharmacist_name: formData.pharmacistName.trim(),
+            pharmacist_registration_number: formData.pharmacistRegistrationNumber.trim(),
           },
         },
       });
@@ -125,16 +90,29 @@ export function Register() {
       if (signUpError) throw signUpError;
 
       if (data.session) {
-        const destination = formData.role === 'manager' ? '/manager/dashboard' : '/user/dashboard';
+        if (formData.role === 'manager') {
+          setSuccess('Account created. Your manager access is pending administrator review of your pharmacy credentials.');
+          toast.success('Manager application submitted for review');
+          navigate('/user/dashboard', { replace: true });
+          return;
+        }
         setSuccess(`Account created successfully! Welcome to MediLinkRx, ${formData.name.trim()}.`);
         toast.success('Registration successful!');
-        navigate(destination, { replace: true });
+        navigate('/user/dashboard', { replace: true });
       } else {
-        setSuccess('Account created. Check your email to confirm your address, then sign in.');
-        toast.success('Check your email to confirm your account.');
+        setSuccess(formData.role === 'manager'
+          ? 'Account created. Check your email to confirm it. Manager access remains disabled until an administrator reviews your pharmacy credentials.'
+          : 'Account created. Check your email to confirm your address, then sign in.');
+        toast.success(formData.role === 'manager' ? 'Manager application submitted for review' : 'Check your email to confirm your account.');
       }
     } catch (err: any) {
-      setError(err.message || 'An unexpected error occurred during account registration.');
+      const message = typeof err?.message === 'string' ? err.message : '';
+      const isNetworkError = /failed to fetch|networkerror|fetch failed/i.test(message);
+      setError(
+        isNetworkError
+          ? 'Could not reach the registration service. Check your internet connection and confirm the Supabase project URL and anon key in your local environment configuration.'
+          : message || 'An unexpected error occurred during account registration.'
+      );
       toast.error('Registration failed');
     } finally {
       setLoading(false);
@@ -165,9 +143,8 @@ export function Register() {
         </div>
 
         {formData.role === 'manager' && (
-          <div className="bg-rose-50 text-rose-600 p-3.5 rounded-2xl text-sm flex items-center gap-3 border border-rose-100 font-medium">
-            <AlertCircle className="h-5 w-5 shrink-0 text-rose-500" />
-            <span>Manager accounts require administrator approval after pharmacy verification. Please contact MediLink support.</span>
+          <div className="rounded-2xl border border-blue-100 bg-blue-50 p-3.5 text-sm font-medium text-blue-800">
+            Manager access is granted only after an administrator reviews your pharmacy and pharmacist credentials.
           </div>
         )}
 
@@ -285,7 +262,7 @@ export function Register() {
             <section className="space-y-4 rounded-2xl border border-blue-100 bg-blue-50/50 p-4">
               <div>
                 <h3 className="text-sm font-extrabold uppercase tracking-wider text-secondary">Pharmacy Verification</h3>
-                <p className="mt-1 text-xs text-slate-500">Verify your retail drug licence to continue.</p>
+                <p className="mt-1 text-xs text-slate-500">Submit your credentials for administrator review. They will not grant manager access until approved.</p>
               </div>
 
               <div>
@@ -295,7 +272,7 @@ export function Register() {
 
               <div>
                 <label className="block text-sm font-semibold text-slate-700 mb-1">Drug Licence Number</label>
-                <input type="text" required value={formData.licenceNumber} onChange={(e) => { setFormData({ ...formData, licenceNumber: e.target.value }); setPharmacyVerification(null); }} className="block w-full rounded-xl border border-slate-200 py-3 px-3 text-sm" placeholder="20/MP/123456" />
+                <input type="text" required value={formData.licenceNumber} onChange={(e) => setFormData({ ...formData, licenceNumber: e.target.value })} className="block w-full rounded-xl border border-slate-200 py-3 px-3 text-sm" placeholder="20/MP/123456" />
               </div>
 
               <div>
@@ -316,27 +293,9 @@ export function Register() {
                 <input type="text" required value={formData.pharmacistRegistrationNumber} onChange={(e) => setFormData({ ...formData, pharmacistRegistrationNumber: e.target.value })} className="block w-full rounded-xl border border-slate-200 py-3 px-3 text-sm" placeholder="MP/PH/12345" />
               </div>
 
-              <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-1">Upload Drug Licence</label>
-                <label className="flex cursor-pointer items-center gap-2 rounded-xl border border-dashed border-slate-300 bg-white px-3 py-3 text-sm text-slate-600 hover:border-secondary">
-                  <Upload className="h-4 w-4" />
-                  <span>{formData.licenceFileName || 'Choose File'}</span>
-                  <input type="file" accept=".pdf,.jpg,.jpeg,.png" className="sr-only" onChange={(e) => setFormData({ ...formData, licenceFileName: e.target.files?.[0]?.name || '' })} />
-                </label>
-              </div>
-
-              <button type="button" onClick={verifyPharmacy} disabled={loading} className="flex w-full items-center justify-center gap-2 rounded-xl bg-secondary px-4 py-3 text-sm font-bold text-white transition-colors hover:bg-blue-700 disabled:opacity-70">
-                {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ShieldCheck className="h-4 w-4" />} Verify Pharmacy
-              </button>
-
-              {pharmacyVerification && (
-                <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-800">
-                  <div className="flex items-center gap-2 font-bold"><CheckCircle2 className="h-5 w-5" /> Pharmacy Verified</div>
-                  <p className="mt-2">{pharmacyVerification.pharmacyName}<br />{pharmacyVerification.state}</p>
-                  <p className="mt-2">Drug Licence: {pharmacyVerification.licenceNumber}</p>
-                  <p className="mt-2 font-semibold">You can now create your Manager Account.</p>
-                </div>
-              )}
+              <p className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs text-amber-800">
+                Your licence details are reviewed by an administrator. Do not upload sensitive documents here; this form does not transfer files.
+              </p>
             </section>
           )}
 
