@@ -93,10 +93,18 @@ export function Register() {
       return;
     }
 
-    if (formData.role !== 'user') {
-      setError('Manager accounts require administrator approval after pharmacy verification. Please contact MediLink support.');
+    if (formData.role === 'manager') {
+    if (!formData.pharmacyName || !formData.licenceNumber || !formData.pharmacistName || !formData.pharmacistRegistrationNumber) {
+      setError('Please complete all pharmacy verification details before creating a manager account.');
       setLoading(false);
       return;
+    }
+
+    if (!pharmacyVerification) {
+      setError('Please verify your pharmacy licence before creating a manager account.');
+      setLoading(false);
+      return;
+    }
     }
 
     try {
@@ -107,6 +115,9 @@ export function Register() {
           data: {
             name: formData.name.trim(),
             phone: formData.phone.trim(),
+            role: formData.role,
+            pharmacyName: formData.pharmacyName.trim(),
+            licenceNumber: formData.licenceNumber.trim(),
           },
         },
       });
@@ -114,9 +125,10 @@ export function Register() {
       if (signUpError) throw signUpError;
 
       if (data.session) {
+        const destination = formData.role === 'manager' ? '/manager/dashboard' : '/user/dashboard';
         setSuccess(`Account created successfully! Welcome to MediLinkRx, ${formData.name.trim()}.`);
         toast.success('Registration successful!');
-        navigate('/user/dashboard', { replace: true });
+        navigate(destination, { replace: true });
       } else {
         setSuccess('Account created. Check your email to confirm your address, then sign in.');
         toast.success('Check your email to confirm your account.');
@@ -152,6 +164,13 @@ export function Register() {
           </p>
         </div>
 
+        {formData.role === 'manager' && (
+          <div className="bg-rose-50 text-rose-600 p-3.5 rounded-2xl text-sm flex items-center gap-3 border border-rose-100 font-medium">
+            <AlertCircle className="h-5 w-5 shrink-0 text-rose-500" />
+            <span>Manager accounts require administrator approval after pharmacy verification. Please contact MediLink support.</span>
+          </div>
+        )}
+
         {/* Error Alert */}
         {error && (
           <div className="bg-rose-50 text-rose-600 p-3.5 rounded-2xl text-sm flex items-center gap-3 border border-rose-100 font-medium">
@@ -178,7 +197,10 @@ export function Register() {
             <div className="grid grid-cols-2 gap-3 p-1 bg-slate-100 rounded-2xl">
               <button
                 type="button"
-                onClick={() => setFormData({ ...formData, role: 'user' })}
+                onClick={() => {
+                  setError('');
+                  setFormData({ ...formData, role: 'user' });
+                }}
                 className={`py-2.5 px-3 text-xs font-bold rounded-xl flex justify-center items-center gap-2 transition-all ${
                   formData.role === 'user' 
                     ? 'bg-white text-primary shadow-sm border border-slate-200/50' 
@@ -190,7 +212,10 @@ export function Register() {
 
               <button
                 type="button"
-                onClick={() => setFormData({ ...formData, role: 'manager' })}
+                onClick={() => {
+                  setError('');
+                  setFormData({ ...formData, role: 'manager' });
+                }}
                 className={`py-2.5 px-3 text-xs font-bold rounded-xl flex justify-center items-center gap-2 transition-all ${
                   formData.role === 'manager' 
                     ? 'bg-white text-secondary shadow-sm border border-slate-200/50' 
