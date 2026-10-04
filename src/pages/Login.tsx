@@ -82,7 +82,10 @@ export function Login() {
         : 'user';
       if (actualRole !== loginRole) {
         await supabase.auth.signOut();
-        throw new Error(`This account is not registered as a ${loginRole === 'manager' ? 'manager' : 'patient'} account.`);
+        const profileRole = profile?.role ?? 'missing profile';
+        throw new Error(
+          `Sign-in denied: this account's Supabase profile role is "${profileRole}", but ${loginRole} sign-in was selected.`
+        );
       }
 
       setSuccess('Logged in successfully.');
