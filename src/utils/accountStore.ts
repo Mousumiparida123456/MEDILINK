@@ -58,14 +58,22 @@ export const findAccountByEmail = (email: string): RegisteredAccount | undefined
 
 export const registerNewAccount = (newAcc: RegisteredAccount): { success: boolean; message?: string } => {
   const cleanEmail = newAcc.email.trim().toLowerCase();
+  const cleanPhone = newAcc.phone.trim();
   const accounts = getRegisteredAccounts();
-  const exists = accounts.some((acc) => acc.email.toLowerCase() === cleanEmail);
 
-  if (exists) {
-    return { success: false, message: 'An account with this email already exists.' };
+  const emailExists = accounts.some((acc) => acc.email.toLowerCase() === cleanEmail);
+  if (emailExists) {
+    return { success: false, message: 'An account with this email already exists. Please login instead.' };
   }
 
-  const updated = [...accounts, { ...newAcc, email: cleanEmail }];
+  if (newAcc.role === 'user') {
+    const phoneExists = accounts.some((acc) => acc.role === 'user' && acc.phone.trim() === cleanPhone);
+    if (phoneExists) {
+      return { success: false, message: 'An account with this mobile number already exists.' };
+    }
+  }
+
+  const updated = [...accounts, { ...newAcc, email: cleanEmail, phone: cleanPhone }];
   try {
     localStorage.setItem(REGISTERED_ACCOUNTS_KEY, JSON.stringify(updated));
   } catch (err) {

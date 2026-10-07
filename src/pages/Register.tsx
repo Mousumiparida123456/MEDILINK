@@ -13,6 +13,7 @@ export function Register() {
     email: '',
     phone: '',
     password: '',
+    confirmPassword: '',
     role: 'user' as UserRole,
     pharmacyName: '',
     licenceNumber: '',
@@ -34,7 +35,7 @@ export function Register() {
 
     const trimmedEmail = formData.email.trim().toLowerCase();
 
-    if (!formData.name || !trimmedEmail || !formData.password) {
+    if (!formData.name || !trimmedEmail || !formData.phone || !formData.password || !formData.confirmPassword) {
       setError('Please fill in all required fields.');
       setLoading(false);
       return;
@@ -46,14 +47,20 @@ export function Register() {
       return;
     }
 
-    if (!formData.phone || !isValidPhoneNumber(formData.phone)) {
-      setError('Please enter a valid 10-digit mobile phone number (e.g. 9876543210).');
+    if (!isValidPhoneNumber(formData.phone)) {
+      setError('Please enter a valid 10-digit Indian mobile number.');
       setLoading(false);
       return;
     }
 
     if (formData.password.length < 6) {
       setError('Password must be at least 6 characters long.');
+      setLoading(false);
+      return;
+    }
+
+    if (formData.password !== formData.confirmPassword) {
+      setError('Passwords do not match.');
       setLoading(false);
       return;
     }
@@ -355,6 +362,25 @@ export function Register() {
               >
                 {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
               </button>
+            </div>
+          </div>
+
+          {/* Confirm Password */}
+          <div>
+            <label className="block text-sm font-semibold text-slate-700 mb-1">Confirm Password</label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                <Lock className="h-5 w-5" />
+              </div>
+              <input
+                type={showPassword ? 'text' : 'password'}
+                required
+                minLength={6}
+                value={formData.confirmPassword}
+                onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                className="pl-10 pr-10 block w-full rounded-xl border border-slate-200 py-3 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all text-sm"
+                placeholder="Re-enter your password"
+              />
             </div>
           </div>
 
