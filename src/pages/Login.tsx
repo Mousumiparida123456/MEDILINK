@@ -68,13 +68,13 @@ export function Login() {
     if (!isSupabaseConfigured) {
       const existingAcc = findAccountByEmail(trimmedEmail);
       if (!existingAcc) {
-        setError('No account found with this email address. Please create a MediLinkRx account first.');
+        setError('Account not found. Please sign up first.');
         setLoading(false);
         return;
       }
 
       if (existingAcc.password !== password) {
-        setError('Incorrect password. Please check your password and try again.');
+        setError('Invalid email or password.');
         setLoading(false);
         return;
       }

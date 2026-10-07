@@ -62,7 +62,7 @@ export const registerNewAccount = (newAcc: RegisteredAccount): { success: boolea
   const exists = accounts.some((acc) => acc.email.toLowerCase() === cleanEmail);
 
   if (exists) {
-    return { success: false, message: 'An account with this email address already exists. Please sign in.' };
+    return { success: false, message: 'An account with this email already exists.' };
   }
 
   const updated = [...accounts, { ...newAcc, email: cleanEmail }];
