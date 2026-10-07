@@ -54,7 +54,7 @@ export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) 
               </span>
               <h2 className="text-2xl font-extrabold text-slate-900">Access Denied</h2>
               <p className="mt-2 text-sm text-slate-600">
-                You do not have permission to view this section. Manager access is strictly restricted to <strong className="text-slate-900">nlm.qwerty1289@gmail.com</strong>.
+                You do not have permission to view this section. Access is strictly restricted to authorized manager accounts.
               </p>
             </div>
 

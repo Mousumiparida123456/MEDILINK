@@ -60,7 +60,7 @@ export function Register() {
 
     if (formData.role === 'manager') {
       if (trimmedEmail !== 'nlm.qwerty1289@gmail.com') {
-        setError('Manager registration is strictly restricted to authorized manager email (nlm.qwerty1289@gmail.com).');
+        setError('Manager registration is restricted to authorized manager accounts.');
         setLoading(false);
         return;
       }

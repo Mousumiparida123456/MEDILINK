@@ -52,7 +52,7 @@ export function Login() {
 
     if (loginRole === 'manager') {
       if (trimmedEmail !== 'nlm.qwerty1289@gmail.com') {
-        setError('Access denied: Manager sign-in is strictly restricted to authorized manager credentials (nlm.qwerty1289@gmail.com).');
+        setError('Access denied: Invalid manager sign-in credentials. Only authorized manager accounts can sign in.');
         setLoading(false);
         return;
       }
