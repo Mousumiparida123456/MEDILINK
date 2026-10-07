@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
+import { isValidEmailAddress } from '../utils/validation';
 import { Pill, Mail, Lock, Eye, EyeOff, Loader2, AlertCircle, UserCheck, ShieldCheck } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -39,6 +40,12 @@ export function Login() {
 
     if (!trimmedEmail || !password) {
       setError('Please fill in both email and password.');
+      setLoading(false);
+      return;
+    }
+
+    if (!isValidEmailAddress(trimmedEmail)) {
+      setError('Please enter a valid email address (e.g. name@example.com).');
       setLoading(false);
       return;
     }

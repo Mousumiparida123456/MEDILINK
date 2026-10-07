@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Pill, Mail, Lock, User as UserIcon, ArrowRight, Loader2, Phone, Eye, EyeOff, ShieldCheck, UserCheck, AlertCircle } from 'lucide-react';
 import { type UserRole, useAuth } from '../context/AuthContext';
 import { isSupabaseConfigured, supabase } from '../lib/supabase';
+import { isValidEmailAddress, isValidPhoneNumber } from '../utils/validation';
 import toast from 'react-hot-toast';
 
 export function Register() {
@@ -35,6 +36,18 @@ export function Register() {
 
     if (!formData.name || !trimmedEmail || !formData.password) {
       setError('Please fill in all required fields.');
+      setLoading(false);
+      return;
+    }
+
+    if (!isValidEmailAddress(trimmedEmail)) {
+      setError('Please enter a valid email address (e.g. name@example.com).');
+      setLoading(false);
+      return;
+    }
+
+    if (!formData.phone || !isValidPhoneNumber(formData.phone)) {
+      setError('Please enter a valid 10-digit mobile phone number (e.g. 9876543210).');
       setLoading(false);
       return;
     }
