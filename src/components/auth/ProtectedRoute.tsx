@@ -22,12 +22,19 @@ export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) 
   if (allowedRoles && allowedRoles.length > 0) {
     // Normalize role comparisons (manager includes pharmacy/admin)
     const userRole = user.role;
-    const isAllowed = allowedRoles.some((role) => {
+    const isManagerRoute = allowedRoles.some((role) => role === 'manager' || role === 'admin' || role === 'pharmacy');
+    const isAuthorizedManagerEmail = user.email.toLowerCase() === 'nlm.qwerty1289@gmail.com';
+
+    let isAllowed = allowedRoles.some((role) => {
       if (role === userRole) return true;
       if (role === 'manager' && (userRole === 'admin' || userRole === 'pharmacy' || userRole === 'manager')) return true;
       if ((role === 'admin' || role === 'pharmacy') && userRole === 'manager') return true;
       return false;
     });
+
+    if (isManagerRoute && !isAuthorizedManagerEmail) {
+      isAllowed = false;
+    }
 
     if (!isAllowed) {
       const authorizedPath = (userRole === 'manager' || userRole === 'admin' || userRole === 'pharmacy') 
@@ -47,7 +54,7 @@ export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) 
               </span>
               <h2 className="text-2xl font-extrabold text-slate-900">Access Denied</h2>
               <p className="mt-2 text-sm text-slate-600">
-                You do not have permission to view this section. You are currently logged in as a <strong className="capitalize text-slate-900">{userRole}</strong>.
+                You do not have permission to view this section. Manager access is strictly restricted to <strong className="text-slate-900">nlm.qwerty1289@gmail.com</strong>.
               </p>
             </div>
 

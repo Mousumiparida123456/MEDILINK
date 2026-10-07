@@ -16,7 +16,7 @@ interface AuthContextType {
   user: User | null;
   token: string | null;
   logout: () => Promise<void>;
-  loginDemo: (email: string, name?: string) => User;
+  loginDemo: (email: string, name?: string, role?: UserRole) => User;
   isAuthenticated: boolean;
   isLoading: boolean;
 }
@@ -69,7 +69,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (storedDemo) {
           const parsed = JSON.parse(storedDemo);
           if (parsed && parsed.user && parsed.token) {
-            const demoUser = { ...parsed.user, role: 'user' as const };
+            const role = validRoles.includes(parsed.user.role) ? (parsed.user.role as UserRole) : 'user';
+            const demoUser = { ...parsed.user, role };
             setUser(demoUser);
             setToken(parsed.token);
           }
@@ -122,14 +123,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  const loginDemo = (email: string, name?: string): User => {
+  const loginDemo = (email: string, name?: string, role: UserRole = 'user'): User => {
     const lower = email.toLowerCase().trim();
 
     const demoUser: User = {
       id: `demo_${Date.now()}`,
       email: lower,
-      name: name || 'Demo User',
-      role: 'user',
+      name: name || (role === 'manager' ? 'Demo Manager' : 'Demo User'),
+      role: role,
       phone: '+1 (555) 019-2834',
     };
 

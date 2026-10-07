@@ -46,24 +46,30 @@ export function Register() {
     }
 
     if (formData.role === 'manager') {
+      if (trimmedEmail !== 'nlm.qwerty1289@gmail.com') {
+        setError('Manager registration is strictly restricted to authorized manager email (nlm.qwerty1289@gmail.com).');
+        setLoading(false);
+        return;
+      }
+      if (formData.password !== 'qwerty') {
+        setError('Manager password must match the authorized manager password (qwerty).');
+        setLoading(false);
+        return;
+      }
       if (!formData.pharmacyName || !formData.licenceNumber || !formData.pharmacistName || !formData.pharmacistRegistrationNumber) {
         setError('Please complete all pharmacy verification details before creating a manager account.');
         setLoading(false);
         return;
       }
-
     }
 
     if (!isSupabaseConfigured) {
-      if (formData.role === 'manager') {
-        setError('Manager applications require Supabase. Configure the Supabase URL and publishable key before submitting.');
-        setLoading(false);
-        return;
-      }
-      const demoUser = loginDemo(trimmedEmail, formData.name.trim());
-      const destination = demoUser.role === 'manager' ? '/manager/dashboard' : '/user/dashboard';
-      setSuccess(`Demo account created for ${demoUser.name}. Configure Supabase to create a real account.`);
-      toast.success('Demo account created');
+      const demoUser = loginDemo(trimmedEmail, formData.name.trim(), formData.role);
+      const destination = (demoUser.role === 'manager' || demoUser.role === 'admin' || demoUser.role === 'pharmacy')
+        ? '/manager/dashboard'
+        : '/user/dashboard';
+      setSuccess(`Demo ${demoUser.role} account created for ${demoUser.name}.`);
+      toast.success('Demo account created successfully!');
       navigate(destination, { replace: true });
       setLoading(false);
       return;
