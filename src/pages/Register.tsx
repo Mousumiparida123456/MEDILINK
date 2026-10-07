@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Pill, Mail, Lock, User as UserIcon, ArrowRight, Loader2, Phone, Eye, EyeOff, ShieldCheck, UserCheck, AlertCircle } from 'lucide-react';
 import { type UserRole } from '../context/AuthContext';
 import { isSupabaseConfigured, supabase } from '../lib/supabase';
-import { isValidEmailAddress, isValidPhoneNumber } from '../utils/validation';
+import { isValidPhoneNumber, checkEmailExistence } from '../utils/validation';
 import { registerNewAccount } from '../utils/accountStore';
 import toast from 'react-hot-toast';
 
@@ -41,8 +41,9 @@ export function Register() {
       return;
     }
 
-    if (!isValidEmailAddress(trimmedEmail)) {
-      setError('Please enter a valid email address (e.g. name@example.com).');
+    const emailCheck = checkEmailExistence(trimmedEmail);
+    if (!emailCheck.exists) {
+      setError(emailCheck.error || "This email doesn't exist.");
       setLoading(false);
       return;
     }

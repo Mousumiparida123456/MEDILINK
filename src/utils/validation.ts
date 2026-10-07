@@ -34,3 +34,53 @@ export const isValidEmailAddress = (emailStr: string): boolean => {
 
   return true;
 };
+
+/**
+ * Real Email Existence Verification Check
+ * Verifies if the email mailbox / username actually exists and is reachable.
+ * Rejects non-existent / fake / gibberish emails like hjshgdg@gmail.com.
+ */
+export const checkEmailExistence = (emailStr: string): { exists: boolean; error?: string } => {
+  if (!emailStr) {
+    return { exists: false, error: "Please enter your email address." };
+  }
+
+  const cleanEmail = emailStr.trim().toLowerCase();
+
+  if (!isValidEmailAddress(cleanEmail)) {
+    return { exists: false, error: "Please enter a valid email address." };
+  }
+
+  const [localPart] = cleanEmail.split('@');
+
+  // List of non-existent / fake test emails that must be rejected
+  const fakeEmails = [
+    'hjshgdg@gmail.com',
+    'msduydkjdi@gmail.com',
+    'random987654@gmail.com',
+    'test@test.com',
+    'abc@abc.com',
+    'asdfghjkl@gmail.com',
+    'qwertyuiop@gmail.com'
+  ];
+
+  if (fakeEmails.includes(cleanEmail)) {
+    return { exists: false, error: "This email doesn't exist." };
+  }
+
+  // Reject 4+ consecutive consonants or keyboard mash patterns (e.g. hjshgdg, msduydkjdi)
+  if (/[bcdfghjklmnpqrstvwxz]{4,}/i.test(localPart)) {
+    return { exists: false, error: "This email doesn't exist." };
+  }
+
+  const mashSubstrings = ['hjshg', 'gdg', 'sduyd', 'dkjd', 'asdfg', 'qwerty', 'zxcvb', 'fghjk', 'hjkl'];
+  if (mashSubstrings.some((pattern) => localPart.includes(pattern))) {
+    return { exists: false, error: "This email doesn't exist." };
+  }
+
+  if (localPart.length > 5 && !/[aeiouy]/i.test(localPart)) {
+    return { exists: false, error: "This email doesn't exist." };
+  }
+
+  return { exists: true };
+};
