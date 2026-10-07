@@ -27,43 +27,27 @@ export const isValidPhoneNumber = (phoneStr: string): boolean => {
 };
 
 /**
- * Strict Email Address Validation
- * Validates RFC-compliant email structure with valid TLD extension (.com, .org, .in, etc.)
- * Rejects bogus emails like a@b, test@test.com, or missing domain extensions
+ * Standard RFC-Compliant Email Address Validation
+ * Validates email structure (e.g. name@domain.com, user.name@domain.co.in)
+ * Requires a valid domain TLD extension of at least 2 characters (.com, .org, .in, .net, etc.)
  */
 export const isValidEmailAddress = (emailStr: string): boolean => {
   if (!emailStr) return false;
   const cleanEmail = emailStr.trim().toLowerCase();
 
-  // Strict email regex requiring domain extension of at least 2 characters (e.g. .com, .in, .edu)
-  const strictEmailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,15}$/;
-  if (!strictEmailRegex.test(cleanEmail)) return false;
+  // Standard RFC-compliant email regex: user@domain.tld
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,15}$/;
+  if (!emailRegex.test(cleanEmail)) return false;
 
   const [localPart, domainPart] = cleanEmail.split('@');
   if (!localPart || !domainPart) return false;
 
-  // Local part must be at least 2 characters
+  // Local part must be at least 2 characters long
   if (localPart.length < 2) return false;
 
-  // Reject 4+ consecutive consonants in local part (e.g. msduydkjdi, dkjdi, rstvw)
-  if (/[bcdfghjklmnpqrstvwxz]{4,}/i.test(localPart)) return false;
-
-  // Reject keyboard mash sub-strings (asdf, qwerty, zxcv, hjkl, etc.)
-  const mashPatterns = ['asdf', 'qwerty', 'zxcv', 'hjkl', 'fghj', 'dfgh', 'ghjk', 'kjd', 'dkj', 'uyd'];
-  if (mashPatterns.some((pattern) => localPart.includes(pattern))) {
-    return false;
-  }
-
-  // Local part > 4 chars must contain vowels
-  if (localPart.length > 4 && !/[aeiouy]/i.test(localPart)) {
-    return false;
-  }
-
-  // Disallow bogus repetitive domains like test@test.com or abc@abc.com
-  const domainName = domainPart.split('.')[0];
-  if (localPart === domainName && (localPart === 'test' || localPart === 'abc' || localPart === 'asdf')) {
-    return false;
-  }
+  // Domain name before extension must be at least 2 characters
+  const domainParts = domainPart.split('.');
+  if (!domainParts[0] || domainParts[0].length < 2) return false;
 
   return true;
 };
