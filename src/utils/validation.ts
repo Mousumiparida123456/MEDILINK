@@ -45,6 +45,20 @@ export const isValidEmailAddress = (emailStr: string): boolean => {
   // Local part must be at least 2 characters
   if (localPart.length < 2) return false;
 
+  // Reject 4+ consecutive consonants in local part (e.g. msduydkjdi, dkjdi, rstvw)
+  if (/[bcdfghjklmnpqrstvwxz]{4,}/i.test(localPart)) return false;
+
+  // Reject keyboard mash sub-strings (asdf, qwerty, zxcv, hjkl, etc.)
+  const mashPatterns = ['asdf', 'qwerty', 'zxcv', 'hjkl', 'fghj', 'dfgh', 'ghjk', 'kjd', 'dkj', 'uyd'];
+  if (mashPatterns.some((pattern) => localPart.includes(pattern))) {
+    return false;
+  }
+
+  // Local part > 4 chars must contain vowels
+  if (localPart.length > 4 && !/[aeiouy]/i.test(localPart)) {
+    return false;
+  }
+
   // Disallow bogus repetitive domains like test@test.com or abc@abc.com
   const domainName = domainPart.split('.')[0];
   if (localPart === domainName && (localPart === 'test' || localPart === 'abc' || localPart === 'asdf')) {

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Pill, Mail, Lock, User as UserIcon, ArrowRight, Loader2, Phone, Eye, EyeOff, ShieldCheck, UserCheck, AlertCircle } from 'lucide-react';
-import { type UserRole, useAuth } from '../context/AuthContext';
+import { type UserRole } from '../context/AuthContext';
 import { isSupabaseConfigured, supabase } from '../lib/supabase';
 import { isValidEmailAddress, isValidPhoneNumber } from '../utils/validation';
 import { registerNewAccount } from '../utils/accountStore';
@@ -25,7 +25,6 @@ export function Register() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const navigate = useNavigate();
-  const { loginDemo } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -96,13 +95,9 @@ export function Register() {
         return;
       }
 
-      const demoUser = loginDemo(trimmedEmail, formData.name.trim(), formData.role);
-      const destination = (demoUser.role === 'manager' || demoUser.role === 'admin' || demoUser.role === 'pharmacy')
-        ? '/manager/dashboard'
-        : '/user/dashboard';
-      setSuccess(`Account registered successfully for ${demoUser.name}.`);
-      toast.success('Account created successfully! Welcome to MediLink.');
-      navigate(destination, { replace: true });
+      setSuccess('Account created successfully! Please sign in with your credentials.');
+      toast.success('Account created successfully! Please sign in with your email and password.');
+      navigate('/login', { replace: true });
       setLoading(false);
       return;
     }
