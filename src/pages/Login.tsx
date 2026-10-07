@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
 import { isValidEmailAddress } from '../utils/validation';
+import { findAccountByEmail } from '../utils/accountStore';
 import { Pill, Mail, Lock, Eye, EyeOff, Loader2, AlertCircle, UserCheck, ShieldCheck } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -65,7 +66,33 @@ export function Login() {
 
     // Direct demo login when Supabase URL is unconfigured / placeholder to avoid 'Failed to fetch'
     if (!isSupabaseConfigured) {
-      const demoUser = loginDemo(trimmedEmail, undefined, loginRole);
+      const existingAcc = findAccountByEmail(trimmedEmail);
+      if (!existingAcc) {
+        setError('No account found with this email address. Please create a MediLinkRx account first.');
+        setLoading(false);
+        return;
+      }
+
+      if (existingAcc.password !== password) {
+        setError('Incorrect password. Please check your password and try again.');
+        setLoading(false);
+        return;
+      }
+
+      const accountRole = existingAcc.role || 'user';
+      if (loginRole === 'manager' && accountRole !== 'manager' && accountRole !== 'admin' && accountRole !== 'pharmacy') {
+        setError('This account is registered as a Patient account. Please sign in using Patient sign in.');
+        setLoading(false);
+        return;
+      }
+
+      if (loginRole === 'user' && (accountRole === 'manager' || accountRole === 'admin' || accountRole === 'pharmacy')) {
+        setError('This account is registered as a Manager account. Please sign in using Manager sign in.');
+        setLoading(false);
+        return;
+      }
+
+      const demoUser = loginDemo(existingAcc.email, existingAcc.name, existingAcc.role);
       setSuccess(`Signed in as ${demoUser.name} (${demoUser.role})`);
       toast.success(`Welcome back, ${demoUser.name}!`);
       const destPath = (demoUser.role === 'manager' || demoUser.role === 'admin' || demoUser.role === 'pharmacy')

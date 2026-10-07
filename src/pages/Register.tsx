@@ -4,6 +4,7 @@ import { Pill, Mail, Lock, User as UserIcon, ArrowRight, Loader2, Phone, Eye, Ey
 import { type UserRole, useAuth } from '../context/AuthContext';
 import { isSupabaseConfigured, supabase } from '../lib/supabase';
 import { isValidEmailAddress, isValidPhoneNumber } from '../utils/validation';
+import { registerNewAccount } from '../utils/accountStore';
 import toast from 'react-hot-toast';
 
 export function Register() {
@@ -77,12 +78,30 @@ export function Register() {
     }
 
     if (!isSupabaseConfigured) {
+      const regResult = registerNewAccount({
+        name: formData.name.trim(),
+        email: trimmedEmail,
+        phone: formData.phone.trim(),
+        password: formData.password,
+        role: formData.role,
+        pharmacyName: formData.pharmacyName,
+        licenceNumber: formData.licenceNumber,
+        pharmacistName: formData.pharmacistName,
+        pharmacistRegistrationNumber: formData.pharmacistRegistrationNumber,
+      });
+
+      if (!regResult.success) {
+        setError(regResult.message || 'Registration failed.');
+        setLoading(false);
+        return;
+      }
+
       const demoUser = loginDemo(trimmedEmail, formData.name.trim(), formData.role);
       const destination = (demoUser.role === 'manager' || demoUser.role === 'admin' || demoUser.role === 'pharmacy')
         ? '/manager/dashboard'
         : '/user/dashboard';
-      setSuccess(`Demo ${demoUser.role} account created for ${demoUser.name}.`);
-      toast.success('Demo account created successfully!');
+      setSuccess(`Account registered successfully for ${demoUser.name}.`);
+      toast.success('Account created successfully! Welcome to MediLink.');
       navigate(destination, { replace: true });
       setLoading(false);
       return;
